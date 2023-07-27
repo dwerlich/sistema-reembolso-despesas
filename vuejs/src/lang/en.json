@@ -1,0 +1,19 @@
+{
+  "t-menu": "Menu",
+  "t-dashboard": "Dashboard",
+  "t-register": "Cadastro",
+  "t-users": "Usuários",
+  "t-services": "Serviços",
+  "t-activities": "Atividades",
+  "t-equipaments": "Equipamentos",
+  "t-business": "Negócios",
+  "t-clients": "Clientes",
+  "t-financial": "Financeiro",
+  "t-accounts": "Contas",
+  "t-categories": "Categorias",
+  "t-logOut": "Saídas",
+  "t-logIn": "Entradas",
+
+  "t-trash": "Lixeira",
+  "t-audit": "Auditoria"
+}

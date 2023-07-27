@@ -1,0 +1,198 @@
+:root {
+    --rgba-primary: rgba(88, 105, 216, .4);
+    --height-timeline: 50%;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+.toast {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    bottom: 50px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.toast-header .bx-x {
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    font-size: 20px;
+}
+
+.toast-body i {
+    font-size: 20px;
+}
+
+.toast-header i {
+    font-size: 30px;
+}
+
+.my-container-class .Vue-Toastification__toast.Vue-Toastification__toast--error {
+    background-color: #F8D7DA;
+    color: #842029;
+}
+
+.my-container-class .Vue-Toastification__toast.Vue-Toastification__toast--success {
+    background-color: #D1E7DD;
+    color: #0F5132;
+}
+
+.my-container-class .Vue-Toastification__toast {
+    border-radius: 5px;
+    padding: 15px 15px;
+}
+
+.my-container-class .Vue-Toastification__close-button {
+    color: gray !important;
+}
+
+.my-container-class .Vue-Toastification__icon {
+    margin: 2px 15px 5px 0;
+}
+
+.my-container-class .Vue-Toastification__close-button {
+    margin: -2px 2px 5px 10px;
+}
+
+.margin-load {
+    margin-right: -10px;
+}
+
+.m-r-10 {
+    margin-right: 10px;
+}
+
+.btn .spinner-border {
+    height: 20px !important;
+    width: 20px !important;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.form-control, .form-select {
+    max-height: 40px;
+}
+
+.spinner {
+    position: fixed;
+    display: none;
+    z-index: 9999;
+}
+
+.spinner-card {
+    right: calc(50% - 2.5rem);
+    top: calc(50% - 2.5rem);
+}
+
+.op-2 {
+    opacity: .2;
+}
+
+.relative {
+    position: relative !important;
+}
+
+.ri-arrow-drop-up-fill {
+    position: absolute !important;
+    top: 8px !important;
+}
+
+.ri-arrow-drop-down-fill {
+    position: absolute !important;
+    bottom: 8px !important;
+}
+
+/* Estilizando a barra de rolagem */
+.custom-scrollbar::-webkit-scrollbar, .modal-body::-webkit-scrollbar {
+    width: 6px; /* Largura da barra de rolagem */
+}
+
+/* Estilizando o trilho da barra de rolagem */
+.custom-scrollbar::-webkit-scrollbar-track, .modal-body::-webkit-scrollbar-track {
+    background-color: transparent; /* Cor de fundo do trilho */
+}
+
+/* Estilizando o "polegar" (a alça da barra de rolagem) */
+.custom-scrollbar::-webkit-scrollbar-thumb, .modal-body::-webkit-scrollbar-thumb {
+    background-color: var(--rgba-primary); /* Cor do polegar */
+    border-radius: 3px; /* Raio da borda do polegar */
+}
+
+/* Mudando a cor do "polegar" quando estiver passando o mouse */
+.custom-scrollbar::-webkit-scrollbar-thumb:hover, .modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: var(--rgba-primary); /* Cor do polegar ao passar o mouse */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover, .modal-body::-webkit-scrollbar-thumb:hover {
+    background-color: var(--rgba-primary); /* Cor do polegar */
+}
+
+#timeline, #detailsLead {
+    max-height: 75vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.icon-add {
+    position: absolute;
+    right: 10px;
+    top: 5px
+}
+
+.notification-title {
+    font-size: 16px !important;
+}
+
+.notification-title i {
+    font-size: 14px !important;
+    margin-right: 10px !important;
+}
+
+.vue-notification {
+    padding: 15px !important;
+    border-radius: 5px;
+}
+
+.vue-notification.error {
+    background: #F8D7DA !important;
+    border-left-color: #A22029 !important;
+    color: #A22029 !important;
+}
+
+.vue-notification.success {
+    background: #D1E7DD !important;
+    border-left-color: #0F5132 !important;
+    color: #0F5132 !important;
+}
+
+.timeline-box {
+    z-index: 2 !important;
+}
+
+.timeline-2::after {
+    height: var(--height-timeline);
+}
+
+#addActivity {
+    position: absolute;
+    right: 25px;
+}
+
+.spinner-line {
+    display: none;
+    position: absolute;
+    right: calc(50% - 1rem)
+}
+
+#spinnerTable {
+    display: block;
+    position: absolute;
+    right: calc(50% - 1rem);
+    top: 50px
+}
