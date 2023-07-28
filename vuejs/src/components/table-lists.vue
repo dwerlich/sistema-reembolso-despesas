@@ -1,7 +1,6 @@
 /* eslint-disable */
 <script>
-import { startLoading} from "@/components/composables/functions";
-// import {endLoading, startLoading, ValidateForm} from "@/components/composables/functions";
+import {endLoading, startLoading, ValidateForm} from "@/components/composables/functions";
 
 export default {
     props: [
@@ -28,10 +27,10 @@ export default {
 
         validation() {
             startLoading('form', 'save');
-            // if (!ValidateForm('form')) {
-            //     endLoading('form', 'save');
-            //     return;
-            // }
+            if (!ValidateForm('form')) {
+                endLoading('form', 'save');
+                return;
+            }
 
             this.submitForm()
         },

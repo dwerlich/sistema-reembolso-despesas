@@ -35,7 +35,7 @@ export const actions = {
         const url = getUrl(obj.paramns);
         const route = 'usuarios/listar/' + url;
         http.get(route, {
-            headers: {'x-auth': ` Bearer ${localStorage.getItem('jwt')} `}
+            headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
         })
             .then(response => commit(LIST_USERS, response.data))
             .catch(errors => {
@@ -49,7 +49,7 @@ export const actions = {
     [REGISTER_USERS]({dispatch}, formData) {
         http.post('usuarios/cadastrar', formData, {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(response => {
@@ -71,7 +71,7 @@ export const actions = {
         opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
         await http.delete('usuarios/excluir/' + id, {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(() => {

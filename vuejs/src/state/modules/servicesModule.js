@@ -33,7 +33,7 @@ export const actions = {
         const url = getUrl(obj.paramns);
         const route = 'servicos/listar/' + url;
         http.get(route, {
-            headers: {'x-auth': ` Bearer ${localStorage.getItem('jwt')} `}
+            headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
         })
             .then(response => commit(LIST_SERVICES, response.data))
             .catch(errors => {
@@ -47,7 +47,7 @@ export const actions = {
     [REGISTER_SERVICES]({dispatch}, formData) {
         http.post('servicos/cadastrar', formData, {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(response => {
@@ -69,7 +69,7 @@ export const actions = {
         opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
         http.delete('servicos/excluir/' + id, {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(() => {

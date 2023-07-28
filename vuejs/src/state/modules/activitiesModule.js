@@ -38,7 +38,7 @@ export const actions = {
         const url = getUrl(obj.paramns);
         const route = 'atividades/listar/' + url;
         http.get(route, {
-            headers: {'x-auth': ` Bearer ${localStorage.getItem('jwt')} `}
+            headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
         })
             .then(response => commit(LIST_ACTIVITIES, response.data))
             .catch(errors => {
@@ -53,7 +53,7 @@ export const actions = {
         opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
         http.post('atividades/cadastrar', formData, {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(response => {
@@ -75,7 +75,7 @@ export const actions = {
     [DELETE_ACTIVITIES](contexto, id) {
         http.delete('atividades/excluir/' + id, {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(() => {
@@ -96,7 +96,7 @@ export const actions = {
     [GET_ACTIVITIES_ALL]({commit}) {
         http.get('atividades/por-consultoria/', {
             headers: {
-                'x-auth': `Bearer ${localStorage.getItem('jwt')}`
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(response => {

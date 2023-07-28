@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\LoginController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,5 +16,13 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::middleware('api')->get('/usuario', [LoginController::class, 'logged']);
-
 Route::post('/login', [LoginController::class, 'authentication']);
+
+Route::prefix('/usuarios')->group(function () {
+	Route::controller(UsersController::class)->group(function () {
+		Route::get('/listar', 'list');
+		Route::get('/dados/{user}', 'data');
+		Route::post('/cadastrar', 'store');
+		Route::delete('/excluir/{id}', 'destroy');
+	});
+});

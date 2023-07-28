@@ -151,7 +151,7 @@ export default {
                     </router-link>
                 </li>
 
-                <li class="nav-item">
+                <li  class="nav-item">
                     <b-link class="nav-link menu-link" href="#registerApps" data-bs-toggle="collapse" role="button"
                             aria-expanded="false" aria-controls="registerApps">
                         <i class="mdi mdi-cogs"></i>
@@ -163,15 +163,32 @@ export default {
                                 <router-link to="/cadastro/usuarios" class="nav-link">
                                     Usuários</router-link>
                             </li>
+                            <li class="nav-item">
+                                <router-link to="/cadastro/categorias" class="nav-link">
+                                    Categorias</router-link>
+                            </li>
                         </ul>
                     </div>
                 </li>
 
-                <li class="nav-item">
-                    <router-link class="nav-link menu-link" to="/">
-                        <i class="mdi mdi-target"></i>
-                        <span>Horários</span>
-                    </router-link>
+                <li  class="nav-item">
+                    <b-link class="nav-link menu-link" href="#requestsApps" data-bs-toggle="collapse" role="button"
+                            aria-expanded="false" aria-controls="requestsApps">
+                        <i class="mdi mdi-cogs"></i>
+                        <span >Solicitações</span>
+                    </b-link>
+                    <div class="collapse menu-dropdown" id="requestsApps">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <router-link to="/solicitacoes/pendentes" class="nav-link">
+                                    Pendentes</router-link>
+                            </li>
+                            <li class="nav-item">
+                                <router-link to="/solicitacoes/resolvidas" class="nav-link">
+                                    Resolvidas</router-link>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
             </ul>
     </b-container>

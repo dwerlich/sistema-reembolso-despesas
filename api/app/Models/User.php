@@ -22,6 +22,8 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'password',
+	    'birthDate',
+	    'category'
     ];
 
     /**
@@ -32,6 +34,8 @@ class User extends Authenticatable implements JWTSubject
     protected $hidden = [
         'password',
         'remember_token',
+	    'created_at',
+	    'updated_at'
     ];
 
     /**
@@ -51,5 +55,11 @@ class User extends Authenticatable implements JWTSubject
 	public function getJWTCustomClaims(): array
 	{
 		return [];
+	}
+	
+	public function getBirthDateAttribute($value)
+	{
+		$dateTime = \DateTime::createFromFormat('Y-m-d', $value);
+		return $dateTime->format('d/m/Y');
 	}
 }

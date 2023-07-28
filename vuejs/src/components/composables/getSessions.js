@@ -7,6 +7,7 @@ export function setSessionUsers() {
             limit: 25,
             email: '',
             name: '',
+            category: ''
         }
     }
     localStorage.setItem('Users', JSON.stringify(users));

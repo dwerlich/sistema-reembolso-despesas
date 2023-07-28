@@ -43,4 +43,34 @@ export default [
         },
         component: () => import("../views/register/users.vue"),
     },
+    {
+        path: "/cadastro/categorias",
+        name: "categories",
+        meta: {
+            title: "Categorias",
+            authRequired: true,
+            authLevel: true
+        },
+        component: () => import("../views/register/categories.vue"),
+    },
+    {
+        path: "/solicitacoes/pendentes",
+        name: "pending",
+        meta: {
+            title: "Solicitações Pendentes",
+            authRequired: true,
+            authLevel: true
+        },
+        component: () => import("../views/requests/pending.vue"),
+    },
+    {
+        path: "/solicitacoes/resolvidas",
+        name: "resolved",
+        meta: {
+            title: "Solicitações Resolvidas",
+            authRequired: true,
+            authLevel: true
+        },
+        component: () => import("../views/requests/resolved.vue"),
+    },
 ];
