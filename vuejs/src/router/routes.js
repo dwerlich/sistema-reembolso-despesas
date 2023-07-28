@@ -26,22 +26,6 @@ export default [
         },
     },
     {
-        path: "/recuperar-senha",
-        name: "recuperar-senha",
-        component: () => import("../views/account/forgot-password.vue"),
-        meta: {
-            title: "Recuperar Senha",
-        },
-    },
-    {
-        path: '/nova-senha',
-        name: 'nova-senha',
-        meta: {
-            title: "Recuperar Senha"
-        },
-        component: () => import('../views/account/change-password')
-    },
-    {
         path: "/logout",
         name: "logout",
         component: () => import("../views/account/logout.vue"),

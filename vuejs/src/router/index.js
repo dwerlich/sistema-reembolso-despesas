@@ -3,8 +3,6 @@ import routes from './routes';
 import appConfig from "../../app.config";
 import jwt from 'jwt-decode';
 import {notifyError} from "@/components/composables/functions";
-import sign from 'jwt-encode'
-import {KEY_JWT} from "@/components/composables/variables";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -38,16 +36,6 @@ router.beforeEach(async (routeTo, routeFrom, next) => {
             notifyError('Sessão expirada!');
             next({name: 'login'});
         } else {
-            const key = KEY_JWT;
-            const iat = Math.floor(new Date().getTime() / 1000)
-            const exp = Math.floor((new Date().getTime() / 1000) + 40 * 60);
-            const payload = {
-                exp: exp,
-                iat: iat,
-                token: decoded.token,
-            };
-            const newCode = sign(payload, key);
-            localStorage.setItem('jwt', newCode);
             next();
         }
     } catch (e) {

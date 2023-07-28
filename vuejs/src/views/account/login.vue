@@ -1,9 +1,6 @@
 <script>
-import {required, email, helpers} from "@vuelidate/validators";
 import appConfig from "../../../app.config";
-import useVuelidate from "@vuelidate/core/dist/index.esm";
 import {ref, onMounted} from 'vue'
-import {authMethods, authFackMethods, notificationMethods,} from "@/state/helpers";
 import http from "@/http";
 import router from "@/router";
 import {notifyError} from "@/components/composables/functions";
@@ -14,7 +11,7 @@ export default {
         meta: [{
             name: "description",
             content: appConfig.description,
-        },],
+        }],
     },
     setup() {
         const email = ref("");
@@ -32,13 +29,31 @@ export default {
             http.post('login', formData)
                 .then(response => {
                     if (response.status === 200) {
-                        localStorage.setItem('user', JSON.stringify(response.data.user));
                         localStorage.setItem('jwt', response.data.message);
                         if (document.getElementById('rememberLogin').checked) {
-                            localStorage.setItem('loginSchool', JSON.stringify(formData))
+                            localStorage.setItem('loginMonay', JSON.stringify(formData));
+                            getUser();
                         } else {
-                            localStorage.removeItem('loginSchool');
+                            localStorage.removeItem('loginMonay');
                         }
+                    } else {
+                        load.value = false;
+                        notifyError(response.data.message)
+                    }
+                }).catch(e => {
+                load.value = false;
+                notifyError(e.response.data.message)
+                console.log(e)
+            });
+        }
+
+        const getUser = () => {
+            http.get('usuario', {
+                headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        localStorage.setItem('user', JSON.stringify(response.data.message));
                         setTimeout(() => {
                             router.push({
                                 path: '/'
@@ -52,53 +67,34 @@ export default {
                 load.value = false;
                 notifyError(e.response.data.message)
                 console.log(e)
-            });
+
+            })
+        }
+
+        const tryToLogIn = () => {
+            if (email.value === '' || password.value === '') {
+                return false;
+            }
         }
 
         onMounted(() => {
-            if (localStorage.getItem('loginSchool')) {
-                const data = JSON.parse(localStorage.getItem('loginSchool'));
+            if (localStorage.getItem('loginMonay')) {
+                const data = JSON.parse(localStorage.getItem('loginMonay'));
                 email.value = data.email;
                 password.value = data.password;
                 document.getElementById('rememberLogin').checked = true
             }
         })
 
-        const tryToLogIn = () => {
-            // this.submitted = true;
-            // this.$touch;
-            // if (this.$invalid) {
-            //     return;
-            // }
-        }
-
-
         return {
-            v$: useVuelidate(),
-            tryToLogIn,
             signinapi,
             email,
             tryingToLogIn,
             load,
             submitted,
-            password
+            password,
+            tryToLogIn
         }
-    },
-    validations: {
-        email: {
-            required: helpers.withMessage("E-mail é obrigatório", required),
-            email: helpers.withMessage("E-mail inválido", email),
-        },
-        password: {
-            required: helpers.withMessage("Senha é obrigatória", required),
-        },
-    },
-    computed: {},
-    methods: {
-        ...authMethods,
-        ...authFackMethods,
-        ...notificationMethods,
-
     },
 };
 </script>
@@ -156,11 +152,6 @@ export default {
                                         </div>
 
                                         <div class="mb-3">
-                                            <div class="float-end">
-                                                <router-link to="/recuperar-senha" class="text-muted">
-                                                    Esqueceu a senha?
-                                                </router-link>
-                                            </div>
                                             <label class="form-label" for="password-input">Senha</label>
                                             <div class="position-relative auth-pass-inputgroup mb-3">
                                                 <input type="password" v-model="password" class="form-control pe-5"
