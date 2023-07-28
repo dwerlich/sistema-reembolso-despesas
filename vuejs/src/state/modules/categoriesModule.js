@@ -1,5 +1,5 @@
-import {LIST_ACTIVITIES, LIST_ACTIVITIES_ALL} from "../mutations-types";
-import {DELETE_ACTIVITIES, GET_ACTIVITIES, GET_ACTIVITIES_ALL, REGISTER_ACTIVITIES} from "../actions-type";
+import {LIST_CATEGORIES, NEW_VALUES_CATEGORIES} from "../mutations-types";
+import {DELETE_CATEGORIES, GET_CATEGORIES, REGISTER_CATEGORIES} from "../actions-type";
 import {
     endLoading,
     Forbidden,
@@ -8,57 +8,71 @@ import {
     notifyError, opacityByTag,
 } from '@/components/composables/functions';
 import http from "@/http";
-import {setSessionActivities} from "@/components/composables/getSessions";
+import {setSessionCategories} from "@/components/composables/getSessions";
 import Swal from "sweetalert2";
 
 export const state = {
-    activities: {
+    categories: {
         total: '', partial: '', status: '', message: {}
     },
-    activitiesAll: {}
 };
 
 
 export const mutations = {
-    [LIST_ACTIVITIES](state, activities) {
-        state.activities = activities;
+    [LIST_CATEGORIES](state, categories) {
+        state.categories = categories;
         opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
     },
 
-    [LIST_ACTIVITIES_ALL](state, activitiesAll) {
-        state.activitiesAll = activitiesAll;
-    },
+    [NEW_VALUES_CATEGORIES](state) {
+        const total = --state.categories.total;
+        let message = state.categories.message;
+        let partial = state.categories.partial;
+        let start = state.categories.start;
+        if (total < partial) --partial;
+        if (total === 0) {
+            partial = 0;
+            start = 0;
+            message = {};
+        }
+
+        state.categories = {
+            total: total,
+            partial: partial,
+            start: start,
+            message: message
+        }
+    }
 };
 export const actions = {
 
-    [GET_ACTIVITIES]({commit}) {
+    [GET_CATEGORIES]({commit}) {
         opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
-        if (!localStorage.getItem('Activities')) setSessionActivities();
-        let obj = JSON.parse(localStorage.getItem('Activities'));
+        if (!localStorage.getItem('Categories')) setSessionCategories();
+        let obj = JSON.parse(localStorage.getItem('Categories'));
         const url = getUrl(obj.paramns);
-        const route = 'atividades/listar/' + url;
+        const route = 'categorias/listar/' + url;
         http.get(route, {
             headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
         })
-            .then(response => commit(LIST_ACTIVITIES, response.data))
+            .then(response => commit(LIST_CATEGORIES, response.data))
             .catch(errors => {
                 console.error(errors);
                 notifyError('Algo deu errado. Contate o administrador!');
                 Forbidden(errors);
-                opacityByTag('table', 'td', '1', 'spinnerTable', 'block');
+                opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
             });
     },
 
-    [REGISTER_ACTIVITIES]({dispatch}, formData) {
-        opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
-        http.post('atividades/cadastrar', formData, {
+    [REGISTER_CATEGORIES]({dispatch}, formData) {
+        http.post('categorias/cadastrar', formData, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(response => {
                 showNotify(response)
-                dispatch(GET_ACTIVITIES);
+                dispatch(GET_CATEGORIES);
                 endLoading('form', 'save');
                 const close = document.getElementById('closeModalRegister');
                 close.click();
@@ -66,47 +80,31 @@ export const actions = {
             .catch(errors => {
                 console.error(errors);
                 endLoading('form', 'save');
-                notifyError(errors.response.data.message);
+                notifyError('Algo deu errado. Contate o administrador!');
                 Forbidden(errors);
             })
-        opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
     },
 
-    [DELETE_ACTIVITIES](contexto, id) {
-        http.delete('atividades/excluir/' + id, {
+    async [DELETE_CATEGORIES]({commit}, id) {
+        opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
+        await http.delete('categorias/excluir/' + id, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('jwt')}`
             }
         })
             .then(() => {
-                Swal.fire("", "Atividade excluída com sucesso!", "success");
+                Swal.fire("", "Categoria excluído com sucesso!", "success");
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
                 setTimeout(function () {
                     document.getElementById('line' + id).style.display = 'none';
-                }, 200)
+                }, 200);
+                commit(NEW_VALUES_CATEGORIES);
             })
             .catch(errors => {
                 console.error(errors);
                 notifyError('Algo deu errado. Contate o administrador!');
                 Forbidden(errors);
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
-            })
-    },
-
-    [GET_ACTIVITIES_ALL]({commit}) {
-        http.get('atividades/por-consultoria/', {
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
-            }
-        })
-            .then(response => {
-                console.log(response.data.message)
-                commit(LIST_ACTIVITIES_ALL, response.data.message)
-            })
-            .catch(errors => {
-                console.error(errors);
-                notifyError('Algo deu errado. Contate o administrador!');
-                Forbidden(errors);
             })
     },
 };

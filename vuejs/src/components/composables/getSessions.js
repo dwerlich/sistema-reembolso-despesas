@@ -1,6 +1,6 @@
 export function setSessionUsers() {
     const users = {
-        url: 'usuarios',
+        url: 'usuarios/',
         module: 'usersModule/',
         paramns: {
             index: 0,
@@ -11,5 +11,17 @@ export function setSessionUsers() {
         }
     }
     localStorage.setItem('Users', JSON.stringify(users));
+}
+
+export function setSessionCategories() {
+    const categories = {
+        url: 'categorias/',
+        module: 'categoriesModule/',
+        paramns: {
+            index: 0,
+            limit: 25,
+        }
+    }
+    localStorage.setItem('Categories', JSON.stringify(categories));
 }
 

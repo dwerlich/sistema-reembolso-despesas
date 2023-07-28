@@ -99,6 +99,7 @@ export default {
             title="Usuário"
             ref="childComponentRef"
             col="2"
+            :filter="true"
             @resetModal="resetModal">
 
             <template v-slot:form-filter>
@@ -115,7 +116,7 @@ export default {
                     <select  class="form-control form-select" id="categoryFilter" name="category">
                         <option value="">Todas Categorias</option>
                         <option value="1">Gestor</option>
-                        <option value="0">Funcionário</option>
+                        <option value="2">Funcionário</option>
                     </select>
                 </div>
             </template>
@@ -207,7 +208,7 @@ export default {
                             <select  class="form-control form-select" id="category" name="category" required>
                                 <option value="">Selecione</option>
                                 <option value="1">Gestor</option>
-                                <option value="0">Funcionário</option>
+                                <option value="2">Funcionário</option>
                             </select>
                         </b-col>
                         <b-col md="8" id="passwordDiv">

@@ -4,7 +4,7 @@ import {endLoading, startLoading, ValidateForm} from "@/components/composables/f
 
 export default {
     props: [
-        'session', 'title', 'size', 'col'
+        'session', 'title', 'size', 'col', 'filter'
     ],
     emits: ['resetModal'],
     data() {
@@ -104,10 +104,6 @@ export default {
 
     mounted() {
         this.getFilter();
-        // const filter = document.getElementById('filter');
-        // filter.addEventListener('submit', () => {
-        //     this.filterTable();
-        // })
     },
 
 };
@@ -128,7 +124,7 @@ export default {
                     </b-col>
 
                     <slot name="form-filter"></slot>
-                    <div class="col text-end">
+                    <div v-if="this.filter === true" class="col text-end">
                         <button class="btn btn-secondary mx-1 my-1" type="reset" @click="resetTable">
                             Limpar
                         </button>

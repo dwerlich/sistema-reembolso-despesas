@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\UsersController;
 use Illuminate\Support\Facades\Route;
@@ -24,5 +25,15 @@ Route::prefix('/usuarios')->group(function () {
 		Route::get('/dados/{user}', 'data');
 		Route::post('/cadastrar', 'store');
 		Route::delete('/excluir/{id}', 'destroy');
+	});
+});
+
+Route::prefix('/categorias')->group(function () {
+	Route::controller(CategoriesController::class)->group(function () {
+		Route::get('/listar', 'list');
+		Route::get('/dados/{category}', 'data');
+		Route::post('/cadastrar', 'store');
+		Route::delete('/excluir/{id}', 'destroy');
+		Route::get('/novo-status/{id}', 'change');
 	});
 });

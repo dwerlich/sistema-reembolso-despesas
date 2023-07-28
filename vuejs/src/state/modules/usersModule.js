@@ -15,8 +15,6 @@ export const state = {
     users: {
         total: '', partial: '', status: '', message: {}
     },
-    admins: {},
-    consultants: {}
 };
 
 

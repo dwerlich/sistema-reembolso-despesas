@@ -14,7 +14,7 @@ export default {
             }
             document.getElementById('spinnerLine' +id).style.display = 'block';
 
-            await http.get(url + id, {
+            await http.get(url + 'novo-status/' + id, {
                 headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
             })
                 .then(response => {

@@ -2,24 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
-use App\Repositories\UserRepository;
+use App\Models\Category;
+use App\Repositories\CategoryRespository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class UsersController extends Controller
+class CategoriesController extends Controller
 {
-	public function __construct(private UserRepository $repository)
+	public function __construct(private CategoryRespository $repository)
 	{
 	}
 	
-	public function data(Request $request, User $user): JsonResponse
+	public function data(Request $request, Category $category): JsonResponse
 	{
 		try {
 			$this->getPermissions($request->user());
 			return response()->json([
 				'status' => 'ok',
-				'message' => $this->repository->data($user)
+				'message' => $category
 			]);
 		} catch (\Exception $e) {
 			return response()->json([
@@ -33,13 +33,13 @@ class UsersController extends Controller
 	{
 		try {
 			$this->getPermissions($request->user());
-			$users = $this->repository->list($request->all());
+			$categories = $this->repository->list($request->all());
 			$total = $this->repository->total($request->all());
 			$values = $this->getValues($total, $request->get('index'), $request->get('limit'));
 			
 			return response()->json([
 				'status' => 'ok',
-				'message' => $users,
+				'message' => $categories,
 				'total' => $total,
 				'partial' => $values['partial'],
 				'start' => $values['start'],
@@ -73,10 +73,25 @@ class UsersController extends Controller
 	{
 		try {
 			$this->getPermissions($request->user());
-			User::destroy($id);
 			return response()->json([
 				'status' => 'ok',
-				'message' => 'Usuário excluído com sucesso!',
+				'message' => $this->repository->remove($id),
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
+	
+	public function change(Request $request, int $id): JsonResponse
+	{
+		try {
+			$this->getPermissions($request->user());
+			return response()->json([
+				'status' => 'ok',
+				'message' => $this->repository->change($id),
 			]);
 		} catch (\Exception $e) {
 			return response()->json([

@@ -12,7 +12,8 @@ class UserRepository
 		$data['birthDate'] = Carbon::createFromFormat('d/m/Y', $data['birthDate']);
 		$msg = 'cadastrado';
 		if ($data['id'] == 0) {
-		User::create($data);
+			$data['password'] = password_hash($data['password'], PASSWORD_ARGON2I);
+			User::create($data);
 		} else {
 			$user = User::find($data['id']);
 			$user->name = $data['name'];
