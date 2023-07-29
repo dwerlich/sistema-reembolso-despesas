@@ -7,16 +7,15 @@ import PageHeader from "@/components/page-header";
 import {BCol, BRow} from "bootstrap-vue-3";
 import TableLists from '@/components/table-lists'
 import Pagination from '@/components/pagination'
-import {GET_USERS} from "@/state/actions-type";
+import {DELETE_SOLICITATIONS, GET_PENDING} from "@/state/actions-type";
 import {Forbidden, getModalValues, startLoading} from "@/components/composables/functions";
-import {DELETE_USERS} from "@/state/actions-type";
 import Swal from "sweetalert2";
 import http from "@/http";
 import store from "@/state/store";
 
 export default {
     page: {
-        title: "Usuários",
+        title: "Solicitações Pendentes",
         meta: [{name: "description", content: appConfig.description}],
     },
     components: {
@@ -29,14 +28,12 @@ export default {
     },
 
     setup() {
-        store.dispatch('usersModule/' + GET_USERS);
+        store.dispatch('pendingModule/' + GET_PENDING);
 
         const resetModal = () => {
             document.getElementById('form').classList.remove('was-validated');
             document.getElementById('form').reset();
             document.getElementById('id').value = 0;
-            document.getElementById('passwordDiv').style.display = 'block';
-            document.getElementById('password').required = true;
         }
 
         const childComponentRef = ref(null);
@@ -44,8 +41,6 @@ export default {
         const getView = async (id) => {
             childComponentRef.value.modalShow();
             startLoading('form', 'save');
-            document.getElementById('password').required = false;
-            document.getElementById('passwordDiv').style.display = 'none';
             await http.get('usuarios/dados/' + id, {
                 headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
             })
@@ -70,16 +65,16 @@ export default {
                 confirmButtonText: "Confirmar",
             }).then((result) => {
                 if (result.value) {
-                    store.dispatch('usersModule/' + DELETE_USERS, id);
+                    store.dispatch('pendingModule/' + DELETE_SOLICITATIONS, id);
                 }
             });
         }
 
         return {
-            title: "Usuários",
+            title: "Solicitações Pendentes",
             items: null,
-            data: JSON.parse(localStorage.getItem('Users')),
-            users: computed(() => store.state.usersModule.users),
+            data: JSON.parse(localStorage.getItem('Pending')),
+            users: computed(() => store.state.pendingModule.pending),
             resetModal,
             getView,
             childComponentRef,
@@ -95,23 +90,24 @@ export default {
         <PageHeader :title="title"/>
 
         <TableLists
-            session="Users"
-            title="Usuário"
+            session="Pending"
+            title="Solicitação"
             ref="childComponentRef"
             col="2"
+            :filter="true"
             @resetModal="resetModal">
 
             <template v-slot:form-filter>
 
-                <div class="col-md-4 my-1">
-                    <input type="text" class="form-control" id="nameFilter"
-                           placeholder="Nome">
+                <div class="col-md-2 my-1">
+                    <input type="text" class="form-control" id="startFilter"
+                           placeholder="Dê dd/mm/AAAA">
                 </div>
-                <div class="col-md-3 my-1">
-                    <input type="text" class="form-control" id="emailFilter"
-                           placeholder="E-mail">
+                <div class="col-md-2 my-1">
+                    <input type="text" class="form-control" id="endFilter"
+                           placeholder="Até dd/mm/AAAA">
                 </div>
-                <div class="col-md-3 my-1">
+                <div class="col-md-2 my-1">
                     <select  class="form-control form-select" id="categoryFilter" name="category">
                         <option value="">Todas Categorias</option>
                         <option value="1">Gestor</option>
@@ -173,7 +169,7 @@ export default {
                 <Pagination :total="users.total"
                             :index="this.data.paramns.index"
                             :limit="this.data.paramns.limit"
-                            session="Users"
+                            session="Pending"
                 >
                 </Pagination>
 

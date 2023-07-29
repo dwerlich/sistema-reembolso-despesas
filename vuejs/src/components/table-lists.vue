@@ -21,7 +21,17 @@ export default {
     },
 
     methods: {
-        modalShow() {
+        submitForm() {
+            try {
+                const form = document.getElementById('form');
+                const formData = new FormData(form);
+                this.$store.dispatch(this.register, formData)
+            } catch (e) {
+                console.log(e)
+            }
+        },
+
+        modalShow(){
             this.showModal = true;
         },
 
@@ -31,18 +41,7 @@ export default {
                 endLoading('form', 'save');
                 return;
             }
-
             this.submitForm()
-        },
-
-        submitForm() {
-            try {
-                const form = document.getElementById('form');
-                const formData = new FormData(form);
-                this.$store.dispatch(this.register, formData)
-            } catch (e) {
-                console.log(e)
-            }
         },
 
         getLimit() {
@@ -73,6 +72,11 @@ export default {
             }
         },
 
+        resetTable() {
+            document.getElementById('filter').reset();
+            this.filterTable();
+        },
+
         filterTable() {
             // Pegando a localStorage
             let obj = JSON.parse(localStorage.getItem(this.session));
@@ -86,20 +90,12 @@ export default {
                     obj.paramns[keys[i]] = document.getElementById(keys[i] + 'Filter').value;
                 }
             }
-
             // Zerando o index
             obj.paramns.index = 0;
-
             // Salvando a localStorage
             localStorage.setItem(this.session, JSON.stringify(obj));
-
             this.$store.dispatch(this.get)
-        },
-        resetTable() {
-            document.getElementById('filter').reset();
-            this.filterTable();
         }
-
     },
 
     mounted() {

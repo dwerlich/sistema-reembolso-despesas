@@ -5,7 +5,7 @@ namespace App\Repositories;
 use App\Models\User;
 use Carbon\Carbon;
 
-class UserRepository
+class SolicitationRepository
 {
 	public function add($data): string
 	{
@@ -39,16 +39,19 @@ class UserRepository
 	
 	private function generateWhere($users, array $filter)
 	{
-		if ($filter['name']) {
-			$name = $filter['name'];
-			$users = $users->where('name', 'like', "%$name%");
-		}
-		if ($filter['email']) {
-			$email = $filter['email'];
-			$users = $users->where('email', 'like', "%$email%");
+		if ($filter['user']) {
+			$users = $users->where('user_id', $filter['user']);
 		}
 		if ($filter['category']) {
-			$users = $users->where('category', $filter['category']);
+			$users = $users->where('category_id', $filter['category']);
+		}
+		$start = \DateTime::createFromFormat('d/m/Y', $filter['start']);
+		if ($start) {
+			$users = $users->where('created_at', '>', $start->format('Y-m-d 00:00'));
+		}
+		$end = \DateTime::createFromFormat('d/m/Y', $filter['end']);
+		if ($end) {
+			$users = $users->where('created_at', '<', $end->format('Y-m-d 23:59'));
 		}
 		
 		return $users;

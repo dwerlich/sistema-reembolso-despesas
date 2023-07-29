@@ -25,3 +25,20 @@ export function setSessionCategories() {
     localStorage.setItem('Categories', JSON.stringify(categories));
 }
 
+export function setSessionPending() {
+    const pending = {
+        url: 'solicitacoes/',
+        module: 'pendingModule/',
+        paramns: {
+            index: 0,
+            limit: 25,
+            start: '',
+            end: '',
+            category: '',
+            user: '',
+            status: 1
+        }
+    }
+    localStorage.setItem('Pending', JSON.stringify(pending));
+}
+

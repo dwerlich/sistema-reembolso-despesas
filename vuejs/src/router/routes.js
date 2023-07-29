@@ -61,7 +61,7 @@ export default [
             authRequired: true,
             authLevel: true
         },
-        component: () => import("../views/requests/pending.vue"),
+        component: () => import("../views/solicitation/pending.vue"),
     },
     {
         path: "/solicitacoes/resolvidas",
@@ -71,6 +71,6 @@ export default [
             authRequired: true,
             authLevel: true
         },
-        component: () => import("../views/requests/resolved.vue"),
+        component: () => import("../views/solicitation/resolved.vue"),
     },
 ];
