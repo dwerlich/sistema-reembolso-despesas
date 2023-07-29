@@ -34,4 +34,17 @@ class SolicitationsController extends Controller
 			], 500);
 		}
 	}
+	
+	public function store(Request $request): JsonResponse
+	{
+		try {
+			$user = $request->user();
+			return $this->repository->add($request->all(), $user);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
 }

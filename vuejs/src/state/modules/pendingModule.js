@@ -1,4 +1,4 @@
-import {LIST_PENDING, LIST_RESOLVED} from "../mutations-types";
+import {LIST_PENDING} from "../mutations-types";
 import {DELETE_SOLICITATIONS, GET_PENDING, REGISTER_PENDING} from "../actions-type";
 import {
     endLoading,
@@ -15,20 +15,12 @@ export const state = {
     pending: {
         total: '', partial: '', status: '', message: {}
     },
-    resolved: {
-        total: '', partial: '', status: '', message: {}
-    },
 };
 
 
 export const mutations = {
     [LIST_PENDING](state, pending) {
         state.pending = pending;
-        opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
-    },
-
-    [LIST_RESOLVED](state, resolved) {
-        state.resolved = resolved;
         opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
     },
 };

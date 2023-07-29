@@ -2,28 +2,47 @@
 
 namespace App\Repositories;
 
+use App\Helpers\Utils;
+use App\Models\Solicitation;
+use App\Models\SolicitationDetails;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class SolicitationRepository
 {
-	public function add($data): string
+	public function add($data, User $user): JsonResponse
 	{
-		$data['birthDate'] = Carbon::createFromFormat('d/m/Y', $data['birthDate']);
-		$msg = 'cadastrado';
-		if ($data['id'] == 0) {
-			$data['password'] = password_hash($data['password'], PASSWORD_ARGON2I);
-			User::create($data);
-		} else {
-			$user = User::find($data['id']);
-			$user->name = $data['name'];
-			$user->email = $data['email'];
-			$user->category = $data['category'];
-			$user->birthDate = $data['birthDate'];
-			$user->save();
-			$msg = 'editado';
+		try {
+			if ($data['id'] == 0) {
+				DB::beginTransaction();
+				$solicitation = new Solicitation();
+				$solicitation->status = 1;
+				$solicitation->user_id = $user->id;
+				$solicitation->value = (new Utils)->moneyToFloat($data['valueTotal']);
+				$solicitation->save();
+				
+				foreach ($data['category'] as $index => $value) {
+					$details = new SolicitationDetails();
+					$details->category_id = $value;
+					$details->solicitation_id = $solicitation->id;
+					$details->value = (new Utils)->moneyToFloat($data['value'][$index]);
+					$details->save();
+				}
+				DB::commit();
+			}
+			return response()->json([
+				'status' => 'ok',
+				'message' => 'Solicitação cadastrada com sucesso!'
+			], 201);
+		} catch (\Exception $e) {
+			DB::rollBack();
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
 		}
-		return "Usuário {$msg} com sucesso!";
 	}
 	
 	public function data(User $user): array
@@ -37,31 +56,32 @@ class SolicitationRepository
 		];
 	}
 	
-	private function generateWhere($users, array $filter)
+	private function generateWhere($solicitations, array $filter)
 	{
 		if ($filter['user']) {
-			$users = $users->where('user_id', $filter['user']);
+			$solicitations = $solicitations->where('user_id', $filter['user']);
 		}
 		if ($filter['category']) {
-			$users = $users->where('category_id', $filter['category']);
+			$solicitations = $solicitations->where('category_id', $filter['category']);
 		}
 		$start = \DateTime::createFromFormat('d/m/Y', $filter['start']);
 		if ($start) {
-			$users = $users->where('created_at', '>', $start->format('Y-m-d 00:00'));
+			$solicitations = $solicitations->where('created_at', '>', $start->format('Y-m-d 00:00'));
 		}
 		$end = \DateTime::createFromFormat('d/m/Y', $filter['end']);
 		if ($end) {
-			$users = $users->where('created_at', '<', $end->format('Y-m-d 23:59'));
+			$solicitations = $solicitations->where('created_at', '<', $end->format('Y-m-d 23:59'));
 		}
 		
-		return $users;
+		return $solicitations;
 	}
 	
 	public function list(array $filter)
 	{
-		$users = User::query()->select('id', 'name', 'email', 'category');
-		$users = $this->generateWhere($users, $filter);
-		return $users->offset($filter['index'])
+		$solicitations = Solicitation::join('users', 'users.id', '=', 'solicitations.user_id')
+			->select('solicitations.id', 'solicitations.value', 'solicitations.created_at', 'users.name as user_name');
+		$solicitations = $this->generateWhere($solicitations, $filter);
+		return $solicitations->offset($filter['index'])
 			->orderBy('name')
 			->limit($filter['limit'])
 			->get();
@@ -69,8 +89,8 @@ class SolicitationRepository
 	
 	public function total(array $filter)
 	{
-		$users = User::query()->selectRaw('COUNT(id) as count');
-		$users = $this->generateWhere($users, $filter);
-		return $users->first()->count;
+		$solicitations = Solicitation::query()->selectRaw('COUNT(id) as count');
+		$solicitations = $this->generateWhere($solicitations, $filter);
+		return $solicitations->first()->count;
 	}
 }

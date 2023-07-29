@@ -199,9 +199,9 @@ export default {
 
             <template v-slot:t-head>
 
-                <th>Nome</th>
-                <th class="text-center">E-mail</th>
-                <th class="text-center">Categoria</th>
+                <th>Requerente</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Status</th>
                 <th class="text-center">Ações</th>
 
             </template>
@@ -210,8 +210,8 @@ export default {
 
                 <tbody v-if="this.users.message.length > 0">
                 <tr v-for="line in  this.users.message" :key="line.id" :id="'line' +  line.id ">
-                    <td>{{ line.name }}</td>
-                    <td class="text-center">{{ line.email }}</td>
+                    <td>{{ line.user_name }}</td>
+                    <td class="text-center">{{ line.value }}</td>
                     <td class="text-center">{{ line.category == 1 ? 'Gestor' : 'Funcionario' }}</td>
                     <td class="text-center">
                         <i class="bx bx-pencil text-info fs-14 mx-1 pointer" @click="getView(line.id)"
@@ -249,8 +249,8 @@ export default {
             <template v-slot:form-modal>
 
                 <form action="javascript:void(0);" id="form" novalidate>
+                    <input type="hidden" id="id" name="id" value="0">
                     <b-row class="mb-3" v-for="(obj, index) in objs" :key="'row' + index">
-                        <input type="hidden" id="id" name="id" value="0">
                         <b-col md="6">
                             <label for="category" class="form-label">Categoria <span
                                 class="text-danger">*</span></label>
@@ -266,10 +266,11 @@ export default {
                                 <span class="text-danger">
                                     <span>*</span>
                                     <i class="bx bx-trash fs-14 pointer text-end" style="float: right" title="Excluir"
-                                        @click="deleteSolicitation(index)"></i>
+                                       @click="deleteSolicitation(index)"></i>
                                 </span>
                             </label>
-                            <input :id="'value' + index" name="value[]" class="form-control value" :value="obj.value" type="text"
+                            <input :id="'value' + index" name="value[]" class="form-control value" :value="obj.value"
+                                   type="text"
                                    placeholder="R$ 0,00" required @keyup="getTotal('value' + index)">
                         </b-col>
 
@@ -280,7 +281,7 @@ export default {
                             <label for="category" class="form-label">Valor Total <span
                                 class="text-danger">*</span></label>
                             <input id="valueTotal" name="valueTotal" class="form-control" type="text"
-                                   placeholder="R$ 0,00"  required readonly>
+                                   placeholder="R$ 0,00" required readonly>
                         </b-col>
                     </b-row>
                     <b-row>

@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class SolicitationDetails extends Model
 {
 	use HasFactory;
+	protected $table = 'solicitations_details';
+	public $timestamps = false;
 	
 	protected $fillable = [
 		'category',
