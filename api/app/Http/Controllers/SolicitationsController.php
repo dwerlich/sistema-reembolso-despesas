@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Solicitation;
+use App\Models\SolicitationDetails;
 use App\Repositories\SolicitationRepository;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -12,17 +14,33 @@ class SolicitationsController extends Controller
 	{
 	}
 	
-	public function list(Request $request): JsonResponse
+	public function data(Request $request, Solicitation $solicitation): JsonResponse
 	{
 		try {
 			$this->getPermissions($request->user());
-			$users = $this->repository->list($request->all());
-			$total = $this->repository->total($request->all());
+			return response()->json([
+				'status' => 'ok',
+				'message' => $this->repository->data($solicitation, $request->user())
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
+	
+	public function list(Request $request): JsonResponse
+	{
+		try {
+			$user = $this->getPermissions($request->user());
+			$solicitations = $this->repository->list($request->all(), $user);
+			$total = $this->repository->total($request->all(), $user);
 			$values = $this->getValues($total, $request->get('index'), $request->get('limit'));
 			
 			return response()->json([
 				'status' => 'ok',
-				'message' => $users,
+				'message' => $solicitations,
 				'total' => $total,
 				'partial' => $values['partial'],
 				'start' => $values['start'],
@@ -40,6 +58,40 @@ class SolicitationsController extends Controller
 		try {
 			$user = $request->user();
 			return $this->repository->add($request->all(), $user);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
+	
+	public function destroy(Request $request, int $id): JsonResponse
+	{
+		try {
+			$this->getPermissions($request->user());
+			Solicitation::destroy($id);
+			return response()->json([
+				'status' => 'ok',
+				'message' => 'Solicitação excluída com sucesso!',
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
+	
+	public function destroy_detail(Request $request, int $id): JsonResponse
+	{
+		try {
+			$this->getPermissions($request->user());
+			SolicitationDetails::destroy($id);
+			return response()->json([
+				'status' => 'ok',
+				'message' => 'Detalhe da solicitação excluído com sucesso!',
+			]);
 		} catch (\Exception $e) {
 			return response()->json([
 				'status' => 'error',

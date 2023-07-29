@@ -16,7 +16,6 @@ class Controller extends BaseController
 	protected function getPermissions(?User $user = null)
 	{
 		if (!$user) throw new \Exception('Token inválido!');
-		if ($user->category != 1) throw new \Exception('Não autorizado!');
 		
 		return $user;
 	}

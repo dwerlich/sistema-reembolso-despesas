@@ -12,4 +12,5 @@ export const GET_OPTIONS = 'GET_OPTIONS';
 // Actions Solicitações
 export const REGISTER_PENDING = 'REGISTER_PENDING';
 export const DELETE_SOLICITATIONS = 'DELETE_SOLICITATIONS';
+export const DELETE_DETAIL = 'DELETE_DETAIL';
 export const GET_PENDING = 'GET_PENDING';

@@ -8,6 +8,7 @@ export default {
 
     data() {
         return {
+            user: JSON.parse(localStorage.getItem('user')),
             settings: {
                 minScrollbarLength: 60,
             },
@@ -151,7 +152,7 @@ export default {
                     </router-link>
                 </li>
 
-                <li  class="nav-item">
+                <li v-if="this.user.category == 1" class="nav-item">
                     <b-link class="nav-link menu-link" href="#registerApps" data-bs-toggle="collapse" role="button"
                             aria-expanded="false" aria-controls="registerApps">
                         <i class="mdi mdi-cogs"></i>

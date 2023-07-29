@@ -3,6 +3,7 @@ import routes from './routes';
 import appConfig from "../../app.config";
 import jwt from 'jwt-decode';
 import {notifyError} from "@/components/composables/functions";
+import {ACCESS_BY_LEVEL} from "@/components/composables/variables";
 
 const router = createRouter({
     history: createWebHistory(),
@@ -24,6 +25,14 @@ router.beforeEach(async (routeTo, routeFrom, next) => {
     if (!authRequired) return next();
 
     if (localStorage.getItem('jwt') == null) next({name: 'login'});
+
+    const authLevel = routeTo.matched.some((route) => route.meta.authLevel);
+    if (authLevel) {
+        const user = JSON.parse(localStorage.getItem('user'));
+        const level = user.category;
+        console.log(level)
+        if (ACCESS_BY_LEVEL[level].indexOf(routeTo.name) < 0) next({name: 'dashboard'});
+    }
 
     try {
         const token = localStorage.getItem('jwt');

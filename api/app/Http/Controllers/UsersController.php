@@ -16,7 +16,8 @@ class UsersController extends Controller
 	public function data(Request $request, User $user): JsonResponse
 	{
 		try {
-			$this->getPermissions($request->user());
+			$user = $this->getPermissions($request->user());
+			if ($user->category != 1) throw new \Exception('Não autorizado!');
 			return response()->json([
 				'status' => 'ok',
 				'message' => $this->repository->data($user)
@@ -32,7 +33,8 @@ class UsersController extends Controller
 	public function list(Request $request): JsonResponse
 	{
 		try {
-			$this->getPermissions($request->user());
+			$user = $this->getPermissions($request->user());
+			if ($user->category != 1) throw new \Exception('Não autorizado!');
 			$users = $this->repository->list($request->all());
 			$total = $this->repository->total($request->all());
 			$values = $this->getValues($total, $request->get('index'), $request->get('limit'));
@@ -55,7 +57,8 @@ class UsersController extends Controller
 	public function store(Request $request): JsonResponse
 	{
 		try {
-			$this->getPermissions($request->user());
+			$user = $this->getPermissions($request->user());
+			if ($user->category != 1) throw new \Exception('Não autorizado!');
 			$msg = $this->repository->add($request->all());
 			return response()->json([
 				'status' => 'ok',
@@ -72,7 +75,8 @@ class UsersController extends Controller
 	public function destroy(Request $request, int $id): JsonResponse
 	{
 		try {
-			$this->getPermissions($request->user());
+			$user = $this->getPermissions($request->user());
+			if ($user->category != 1) throw new \Exception('Não autorizado!');
 			User::destroy($id);
 			return response()->json([
 				'status' => 'ok',

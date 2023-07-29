@@ -6,32 +6,33 @@ use App\Helpers\Utils;
 use App\Models\Solicitation;
 use App\Models\SolicitationDetails;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use JetBrains\PhpStorm\ArrayShape;
 
 class SolicitationRepository
 {
 	public function add($data, User $user): JsonResponse
 	{
 		try {
-			if ($data['id'] == 0) {
-				DB::beginTransaction();
-				$solicitation = new Solicitation();
-				$solicitation->status = 1;
-				$solicitation->user_id = $user->id;
-				$solicitation->value = (new Utils)->moneyToFloat($data['valueTotal']);
-				$solicitation->save();
-				
-				foreach ($data['category'] as $index => $value) {
-					$details = new SolicitationDetails();
-					$details->category_id = $value;
-					$details->solicitation_id = $solicitation->id;
-					$details->value = (new Utils)->moneyToFloat($data['value'][$index]);
-					$details->save();
-				}
-				DB::commit();
+			DB::beginTransaction();
+			$solicitation = new Solicitation();
+			if ($data['id'] > 0) $solicitation = Solicitation::find($data['id']);
+			$solicitation->status = 1;
+			$solicitation->user_id = $user->id;
+			$solicitation->value = (new Utils)->moneyToFloat($data['valueTotal']);
+			$solicitation->save();
+			
+			foreach ($data['category'] as $index => $value) {
+				$details = new SolicitationDetails();
+				if ($data['idDetail'][$index] > 0) $details = SolicitationDetails::find($data['idDetail'][$index]);
+				$details->category_id = $value;
+				$details->solicitation_id = $solicitation->id;
+				$details->value = (new Utils)->moneyToFloat($data['value'][$index]);
+				$details->save();
 			}
+			
+			DB::commit();
 			return response()->json([
 				'status' => 'ok',
 				'message' => 'Solicitação cadastrada com sucesso!'
@@ -45,18 +46,26 @@ class SolicitationRepository
 		}
 	}
 	
-	public function data(User $user): array
+	#[ArrayShape(['id' => "mixed", 'valueTotal' => "string", 'details' => "array"])]
+	public function data(Solicitation $solicitation, User $user): array
 	{
+		if ($user->id !== $solicitation->user_id) throw new \Exception('Não autorizado!');
+		$details = [];
+		foreach ($solicitation->details as $detail) {
+			$details[] = [
+				'id' => $detail->id,
+				'category' => $detail->category->id,
+				'value' => 'R$ ' . number_format($detail->value, 2, ',', '.')
+			];
+		}
 		return [
-			'id' => $user->id,
-			'name' => $user->name,
-			'email' => $user->email,
-			'category' => $user->category,
-			'birthDate' => $user->birthDate,
+			'id' => $solicitation->id,
+			'valueTotal' => 'R$ ' . number_format($solicitation->value, 2, ',', '.'),
+			'details' => $details
 		];
 	}
 	
-	private function generateWhere($solicitations, array $filter)
+	private function generateWhere($solicitations, array $filter, User $user)
 	{
 		if ($filter['user']) {
 			$solicitations = $solicitations->where('user_id', $filter['user']);
@@ -72,25 +81,30 @@ class SolicitationRepository
 		if ($end) {
 			$solicitations = $solicitations->where('created_at', '<', $end->format('Y-m-d 23:59'));
 		}
+		if ($user->category === 1) {
+			$solicitations = $solicitations->where('user_id', $filter['user']);
+		} else {
+			$solicitations = $solicitations->where('user_id', $user->id);
+		}
 		
 		return $solicitations;
 	}
 	
-	public function list(array $filter)
+	public function list(array $filter, User $user)
 	{
 		$solicitations = Solicitation::join('users', 'users.id', '=', 'solicitations.user_id')
-			->select('solicitations.id', 'solicitations.value', 'solicitations.created_at', 'users.name as user_name');
-		$solicitations = $this->generateWhere($solicitations, $filter);
+			->selectRaw('solicitations.id , solicitations.value, DATE_FORMAT(solicitations.created_at, "%d/%m/%Y %H:%i:%s") as date, users.name as user_name');
+		$solicitations = $this->generateWhere($solicitations, $filter, $user);
 		return $solicitations->offset($filter['index'])
-			->orderBy('name')
+			->orderBy('solicitations.created_at', 'desc')
 			->limit($filter['limit'])
 			->get();
 	}
 	
-	public function total(array $filter)
+	public function total(array $filter, User $user)
 	{
 		$solicitations = Solicitation::query()->selectRaw('COUNT(id) as count');
-		$solicitations = $this->generateWhere($solicitations, $filter);
+		$solicitations = $this->generateWhere($solicitations, $filter, $user);
 		return $solicitations->first()->count;
 	}
 }

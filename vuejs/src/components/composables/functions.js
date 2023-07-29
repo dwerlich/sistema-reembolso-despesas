@@ -2,6 +2,7 @@ import $ from 'jquery'
 import router from '@/router';
 import store from "@/state/store";
 import {useNotification} from "@kyvg/vue3-notification";
+import Swal from "sweetalert2";
 
 const {notify} = useNotification();
 
@@ -103,7 +104,7 @@ export function Forbidden(response) {
 }
 
 export function showNotify(response) {
-    if (response.status === 200) {
+    if (response.status === 200 || response.status === 201) {
         notifySuccess(response.data.message);
     } else {
         console.log(response);
@@ -236,4 +237,19 @@ export function moneyToFloat(string) {
     string = string.replace('R$ ', '');
     string = string.replaceAll('.', '');
     return  parseFloat(string.replaceAll(',', '.'));
+}
+
+export async function deleteElement() {
+    return Swal.fire({
+        title: "Você tem certeza?",
+        text: "Seus dados serão removidos e não poderão mais ser recuperados.",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#34c38f",
+        cancelButtonColor: "#f46a6a",
+        cancelButtonText: "Cancelar",
+        confirmButtonText: "Confirmar",
+    }).then((result) => {
+        return result;
+    });
 }

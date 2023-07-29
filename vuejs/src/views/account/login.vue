@@ -32,10 +32,10 @@ export default {
                         localStorage.setItem('jwt', response.data.message);
                         if (document.getElementById('rememberLogin').checked) {
                             localStorage.setItem('loginMonay', JSON.stringify(formData));
-                            getUser();
                         } else {
                             localStorage.removeItem('loginMonay');
                         }
+                        getUser();
                     } else {
                         load.value = false;
                         notifyError(response.data.message)

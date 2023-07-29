@@ -1,5 +1,5 @@
 import {LIST_PENDING} from "../mutations-types";
-import {DELETE_SOLICITATIONS, GET_PENDING, REGISTER_PENDING} from "../actions-type";
+import {DELETE_DETAIL, DELETE_SOLICITATIONS, GET_PENDING, REGISTER_PENDING} from "../actions-type";
 import {
     endLoading,
     Forbidden,
@@ -78,6 +78,23 @@ export const actions = {
                 setTimeout(function () {
                     document.getElementById('line' + id).style.display = 'none';
                 }, 200)
+            })
+            .catch(errors => {
+                console.error(errors);
+                notifyError('Algo deu errado. Contate o administrador!');
+                Forbidden(errors);
+                opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+            })
+    },
+
+    async [DELETE_DETAIL](contexto, id) {
+        return  http.delete('solicitacao/excluir-detalhe/' + id, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            }
+        })
+            .then(() => {
+                return true;
             })
             .catch(errors => {
                 console.error(errors);

@@ -45,6 +45,7 @@ Route::prefix('/solicitacao')->group(function () {
 		Route::get('/dados/{solicitation}', 'data');
 		Route::post('/cadastrar', 'store');
 		Route::delete('/excluir/{id}', 'destroy');
+		Route::delete('/excluir-detalhe/{id}', 'destroy_detail');
 		Route::get('/novo-status/{id}', 'change');
 	});
 });

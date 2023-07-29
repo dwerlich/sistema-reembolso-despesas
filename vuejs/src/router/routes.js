@@ -59,7 +59,6 @@ export default [
         meta: {
             title: "Solicitações Pendentes",
             authRequired: true,
-            authLevel: true
         },
         component: () => import("../views/solicitation/pending.vue"),
     },
