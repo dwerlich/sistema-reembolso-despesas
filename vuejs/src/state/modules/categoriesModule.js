@@ -1,5 +1,5 @@
-import {LIST_CATEGORIES, NEW_VALUES_CATEGORIES} from "../mutations-types";
-import {DELETE_CATEGORIES, GET_CATEGORIES, REGISTER_CATEGORIES} from "../actions-type";
+import {LIST_CATEGORIES, LIST_OPTIONS, NEW_VALUES_CATEGORIES} from "../mutations-types";
+import {DELETE_CATEGORIES, GET_CATEGORIES, GET_OPTIONS, REGISTER_CATEGORIES} from "../actions-type";
 import {
     endLoading,
     Forbidden,
@@ -14,6 +14,9 @@ import Swal from "sweetalert2";
 export const state = {
     categories: {
         total: '', partial: '', status: '', message: {}
+    },
+    options: {
+
     },
 };
 
@@ -42,7 +45,12 @@ export const mutations = {
             start: start,
             message: message
         }
-    }
+    },
+
+    [LIST_OPTIONS](state, options) {
+        state.options = options;
+        opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+    },
 };
 export const actions = {
 
@@ -61,6 +69,19 @@ export const actions = {
                 notifyError('Algo deu errado. Contate o administrador!');
                 Forbidden(errors);
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+            });
+    },
+
+    [GET_OPTIONS]({commit}) {
+        const route = 'categorias/listar?active=1&name=&index=0&limit=1000';
+        http.get(route, {
+            headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
+        })
+            .then(response => commit(LIST_OPTIONS, response.data.message))
+            .catch(errors => {
+                console.error(errors);
+                notifyError('Algo deu errado. Contate o administrador!');
+                Forbidden(errors);
             });
     },
 

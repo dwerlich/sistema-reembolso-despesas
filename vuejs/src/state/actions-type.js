@@ -7,6 +7,7 @@ export const DELETE_USERS = 'DELETE_USERS';
 export const GET_CATEGORIES = 'GET_CATEGORIES';
 export const REGISTER_CATEGORIES = 'REGISTER_CATEGORIES';
 export const DELETE_CATEGORIES = 'DELETE_CATEGORIES';
+export const GET_OPTIONS = 'GET_OPTIONS';
 
 // Actions Solicitações
 export const REGISTER_PENDING = 'REGISTER_PENDING';

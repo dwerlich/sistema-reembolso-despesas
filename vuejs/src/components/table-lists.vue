@@ -195,7 +195,7 @@ export default {
         </b-card-body>
     </b-card>
 
-    <b-modal v-model="showModal" centered :size="this.size || 'md'" :title="'Cadastrar' + this.title "
+    <b-modal v-model="showModal" centered :size="this.size || 'md'" :title="'Cadastrar ' + this.title "
              class="v-modal-custom" scrollable @hidden="resetModal" id="modalRegister">
 
         <slot name="form-modal"></slot>

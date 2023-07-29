@@ -7,8 +7,8 @@ import PageHeader from "@/components/page-header";
 import {BCol, BRow} from "bootstrap-vue-3";
 import TableLists from '@/components/table-lists'
 import Pagination from '@/components/pagination'
-import {DELETE_SOLICITATIONS, GET_PENDING} from "@/state/actions-type";
-import {Forbidden, getModalValues, startLoading} from "@/components/composables/functions";
+import {DELETE_SOLICITATIONS, GET_OPTIONS, GET_PENDING} from "@/state/actions-type";
+import {Forbidden, getModalValues, startLoading, formatMoney, moneyToFloat} from "@/components/composables/functions";
 import Swal from "sweetalert2";
 import http from "@/http";
 import store from "@/state/store";
@@ -29,6 +29,12 @@ export default {
 
     setup() {
         store.dispatch('pendingModule/' + GET_PENDING);
+        store.dispatch('categoriesModule/' + GET_OPTIONS);
+
+        const objs = ref([{
+            value: '',
+            category: ''
+        }])
 
         const resetModal = () => {
             document.getElementById('form').classList.remove('was-validated');
@@ -70,15 +76,78 @@ export default {
             });
         }
 
+        const setObjs = () => {
+            objs.value = [];
+
+            const inputs = document.getElementsByClassName('value');
+            const selects = document.getElementsByClassName('category');
+
+            for (let i = 0; i < inputs.length; i++) {
+                const addObj = {
+                    value: inputs[i].value,
+                    category: selects[i].value
+                }
+
+                objs.value.push(addObj);
+            }
+        }
+
+        const addObjs = () => {
+            setObjs();
+            const newObj = {
+                value: '',
+                category: ''
+            };
+
+            objs.value.push(newObj);
+        }
+
+        const getTotal = (id) => {
+            if (id) formatMoney(id);
+            let total = 0;
+            const inputs = document.getElementsByClassName('value');
+
+            for (let i = 0; i < inputs.length; i++) {
+                const float = moneyToFloat(inputs[i].value);
+                if (float) total += float;
+            }
+            document.getElementById('valueTotal').value = total.toFixed(2);
+            console.log(total * 100)
+            formatMoney('valueTotal');
+        }
+
+        const deleteSolicitation = (index) => {
+            setObjs();
+            const elementToRemove = document.getElementById('row' + index);
+            if (elementToRemove) {
+                elementToRemove.parentNode.removeChild(elementToRemove);
+            }
+            objs.value = objs.value.filter((element, newIndex) => index !== newIndex);
+
+            let total = 0;
+            objs.value.forEach((element) => {
+                const float = moneyToFloat(element.value);
+                if (float) total += float;
+            })
+
+            document.getElementById('valueTotal').value = total.toFixed(2);
+            formatMoney('valueTotal');
+        }
+
         return {
             title: "Solicitações Pendentes",
             items: null,
             data: JSON.parse(localStorage.getItem('Pending')),
             users: computed(() => store.state.pendingModule.pending),
+            options: computed(() => store.state.categoriesModule.options),
             resetModal,
             getView,
             childComponentRef,
             confirm,
+            objs,
+            addObjs,
+            getTotal,
+            deleteSolicitation
         }
     }
 }
@@ -108,10 +177,11 @@ export default {
                            placeholder="Até dd/mm/AAAA">
                 </div>
                 <div class="col-md-2 my-1">
-                    <select  class="form-control form-select" id="categoryFilter" name="category">
+                    <select class="form-control form-select" id="categoryFilter" name="category">
                         <option value="">Todas Categorias</option>
-                        <option value="1">Gestor</option>
-                        <option value="0">Funcionário</option>
+                        <option v-for="option in options" :key="option.id" :value="option.id">
+                            {{ option.name }}
+                        </option>
                     </select>
                 </div>
             </template>
@@ -179,39 +249,43 @@ export default {
             <template v-slot:form-modal>
 
                 <form action="javascript:void(0);" id="form" novalidate>
-                    <b-row class="g-3">
-                        <b-col lg="12">
-                            <label for="name" class="form-label">Nome <span class="text-danger">*</span> </label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                   placeholder="Nome" required/>
-                            <input type="hidden" name="id" id="id" value="0">
-                        </b-col>
-                        <b-col lg="12">
-                            <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="email" name="email" required
-                                   placeholder="E-mail"/>
-                        </b-col>
-                        <b-col md="6">
-                            <label for="birthDate" class="form-label">Data de Nascimento <span
-                                class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="birthDate" name="birthDate" required
-                                   placeholder="dd/mm/AAAA" v-maska="'##/##/####'"/>
-                        </b-col>
+                    <b-row class="mb-3" v-for="(obj, index) in objs" :key="'row' + index">
+                        <input type="hidden" id="id" name="id" value="0">
                         <b-col md="6">
                             <label for="category" class="form-label">Categoria <span
                                 class="text-danger">*</span></label>
-                            <select  class="form-control form-select" id="category" name="category" required>
+                            <select class="form-control form-select category" id="category" name="category[]" required>
                                 <option value="">Selecione</option>
-                                <option value="1">Gestor</option>
-                                <option value="0">Funcionário</option>
+                                <option v-for="option in options" :key="option.id" :value="option.id">
+                                    {{ option.name }}
+                                </option>
                             </select>
                         </b-col>
-                        <b-col md="8" id="passwordDiv">
-                            <label for="password" class="form-label">Senha <span class="text-danger">*</span></label>
-                            <div class="position-relative auth-pass-inputgroup">
-                                <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="Digite a Senha" required/>
-                            </div>
+                        <b-col md="6">
+                            <label for="category" class="form-label w-100">Valor
+                                <span class="text-danger">
+                                    <span>*</span>
+                                    <i class="bx bx-trash fs-14 pointer text-end" style="float: right" title="Excluir"
+                                        @click="deleteSolicitation(index)"></i>
+                                </span>
+                            </label>
+                            <input :id="'value' + index" name="value[]" class="form-control value" :value="obj.value" type="text"
+                                   placeholder="R$ 0,00" required @keyup="getTotal('value' + index)">
+                        </b-col>
+
+                    </b-row>
+                    <b-row>
+                        <b-col md="7"></b-col>
+                        <b-col md="5">
+                            <label for="category" class="form-label">Valor Total <span
+                                class="text-danger">*</span></label>
+                            <input id="valueTotal" name="valueTotal" class="form-control" type="text"
+                                   placeholder="R$ 0,00"  required readonly>
+                        </b-col>
+                    </b-row>
+                    <b-row>
+                        <b-col xl="12" class="text-center mt-4 fs-24">
+                            <i class=" bx bx-plus-circle pointer" @click="addObjs()"></i>
                         </b-col>
                     </b-row>
                 </form>

@@ -5,23 +5,6 @@ import {useNotification} from "@kyvg/vue3-notification";
 
 const {notify} = useNotification();
 
-export function maskPhone(id) {
-
-    let teste = document.getElementById(id).value;
-    let caracter = teste.replace(/\D/gim, '');
-    let tamanho = caracter.length;
-
-    if (tamanho <= 10) {
-        caracter = caracter.replace(/(\d{2})(\d)/, "($1) $2");
-        caracter = caracter.replace(/(\d{4})(\d)/, "$1-$2");
-        return document.getElementById(id).value = caracter
-    } else {
-        caracter = caracter.replace(/(\d{2})(\d)/, "($1) $2");
-        caracter = caracter.replace(/(\d{5})(\d)/, "$1-$2");
-        return document.getElementById(id).value = caracter.substring(0, 15)
-    }
-}
-
 export function formatMoney(id) {
     const value = document.getElementById(id).value;
     // Remove todos os caracteres que não sejam dígitos
@@ -247,4 +230,10 @@ export function opacityByTag(id, tag, opacity, spinner ,display) {
             a[i].style.opacity = opacity;
         }
     }
+}
+
+export function moneyToFloat(string) {
+    string = string.replace('R$ ', '');
+    string = string.replaceAll('.', '');
+    return  parseFloat(string.replaceAll(',', '.'));
 }
