@@ -34,11 +34,26 @@ export function setSessionPending() {
             limit: 25,
             start: '',
             end: '',
-            category: '',
             user: '',
             status: 1
         }
     }
     localStorage.setItem('Pending', JSON.stringify(pending));
+}
+
+export function setSessionResolved() {
+    const pending = {
+        url: 'solicitacoes/',
+        module: 'resolvedModule/',
+        paramns: {
+            index: 0,
+            limit: 25,
+            start: '',
+            end: '',
+            user: '',
+            status: '2,3'
+        }
+    }
+    localStorage.setItem('Resolved', JSON.stringify(pending));
 }
 

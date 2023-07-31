@@ -160,10 +160,6 @@ export default {
 						</button>
 						<div class="dropdown-menu dropdown-menu-end">
 							<h6 class="dropdown-header">Bem vindo {{ name }}!</h6>
-							<router-link class="dropdown-item" to="/usuarios/meu-perfil"><i
-								class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
-								<span class="align-middle">Meu Perfil</span>
-							</router-link>
 							<b-link class="dropdown-item" href="/logout"><i
 								class="mdi mdi-logout text-muted fs-16 align-middle me-1"></i>
 								<span class="align-middle" data-key="t-logout">Sair</span>

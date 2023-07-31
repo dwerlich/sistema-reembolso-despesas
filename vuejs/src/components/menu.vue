@@ -175,7 +175,7 @@ export default {
                 <li  class="nav-item">
                     <b-link class="nav-link menu-link" href="#requestsApps" data-bs-toggle="collapse" role="button"
                             aria-expanded="false" aria-controls="requestsApps">
-                        <i class="mdi mdi-cogs"></i>
+                        <i class="mdi mdi-crosshairs-question"></i>
                         <span >Solicitações</span>
                     </b-link>
                     <div class="collapse menu-dropdown" id="requestsApps">

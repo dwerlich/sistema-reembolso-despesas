@@ -1,23 +1,23 @@
 <script>
 
 import {computed, ref} from 'vue';
-import appConfig from "../../../app.config.json";
 import Layout from "@/layouts/main";
 import PageHeader from "@/components/page-header";
 import {BCol, BRow} from "bootstrap-vue-3";
 import TableLists from '@/components/table-lists'
 import Pagination from '@/components/pagination'
-import {GET_USERS} from "@/state/actions-type";
-import {Forbidden, getModalValues, startLoading} from "@/components/composables/functions";
-import {DELETE_USERS} from "@/state/actions-type";
-import Swal from "sweetalert2";
+import {GET_RESOLVED, OPTIONS_USERS} from "@/state/actions-type";
+import {
+    Forbidden,
+    startLoading,
+    endLoading, notifyError
+} from "@/components/composables/functions";
 import http from "@/http";
 import store from "@/state/store";
 
 export default {
     page: {
-        title: "Usuários",
-        meta: [{name: "description", content: appConfig.description}],
+        title: "Solicitações Resolvidas",
     },
     components: {
         BCol,
@@ -29,61 +29,61 @@ export default {
     },
 
     setup() {
-        store.dispatch('usersModule/' + GET_USERS);
+        const user = JSON.parse(localStorage.getItem('user'))
+        store.dispatch('resolvedModule/' + GET_RESOLVED);
+        if (user.category === 1) store.dispatch('usersModule/' + OPTIONS_USERS);
+
+        const objs = ref([{
+            id: 0,
+            value: '',
+            category: ''
+        }])
+        const showDetails = ref(false);
 
         const resetModal = () => {
-            document.getElementById('form').classList.remove('was-validated');
-            document.getElementById('form').reset();
-            document.getElementById('id').value = 0;
-            document.getElementById('passwordDiv').style.display = 'block';
-            document.getElementById('password').required = true;
+            objs.value = [{
+                id: 0,
+                value: '',
+                category: ''
+            }];
         }
 
-        const childComponentRef = ref(null);
 
-        const getView = async (id) => {
-            childComponentRef.value.modalShow();
-            startLoading('form', 'save');
-            document.getElementById('password').required = false;
-            document.getElementById('passwordDiv').style.display = 'none';
-            await http.get('usuarios/dados/' + id, {
+        const detailsSolicitation = async (id) => {
+            showDetails.value = true;
+            startLoading('sectionModal', 'save');
+            await http.get('solicitacao/dados/' + id, {
                 headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
             })
                 .then(response => {
-                    getModalValues(response.data.message, 'form', 'save');
+                    const result = response.data.message;
+                    objs.value = [];
+                    result.details.forEach((element) => objs.value.push(element));
+                    document.getElementById('valueTotalDetail').innerText = result.valueTotal;
+                    document.getElementById('userNameDetail').innerText = result.user_name;
+
+                    endLoading('sectionModal', 'save');
                 })
                 .catch(errors => {
+                    endLoading('form', 'save');
                     console.error(errors);
+                    notifyError(errors.response.data.message);
                     Forbidden(errors);
                 });
         }
 
-        const confirm = (id) => {
-            Swal.fire({
-                title: "Você tem certeza?",
-                text: "Seus dados serão removidos e não poderão mais ser recuperados.",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#34c38f",
-                cancelButtonColor: "#f46a6a",
-                cancelButtonText: "Cancelar",
-                confirmButtonText: "Confirmar",
-            }).then((result) => {
-                if (result.value) {
-                    store.dispatch('usersModule/' + DELETE_USERS, id);
-                }
-            });
-        }
-
         return {
-            title: "Usuários",
+            title: "Solicitações Resolvidas",
             items: null,
-            data: JSON.parse(localStorage.getItem('Users')),
-            users: computed(() => store.state.usersModule.users),
+            data: JSON.parse(localStorage.getItem('Resolved')),
+            pendings: computed(() => store.state.resolvedModule.pending),
+            options: computed(() => store.state.categoriesModule.options),
+            users: computed(() => store.state.usersModule.users_options),
             resetModal,
-            getView,
-            childComponentRef,
-            confirm,
+            user,
+            detailsSolicitation,
+            showDetails,
+            objs
         }
     }
 }
@@ -95,27 +95,34 @@ export default {
         <PageHeader :title="title"/>
 
         <TableLists
-            session="Users"
-            title="Usuário"
+            session="Resolved"
             ref="childComponentRef"
             col="2"
-            @resetModal="resetModal">
+            :filter="true">
 
             <template v-slot:form-filter>
 
-                <div class="col-md-4 my-1">
-                    <input type="text" class="form-control" id="nameFilter"
-                           placeholder="Nome">
+                <div class="col-md-2 my-1">
+                    <input type="text" class="form-control" id="startFilter"
+                           placeholder="Dê dd/mm/AAAA" v-maska="'##/##/####'">
                 </div>
-                <div class="col-md-3 my-1">
-                    <input type="text" class="form-control" id="emailFilter"
-                           placeholder="E-mail">
+                <div class="col-md-2 my-1">
+                    <input type="text" class="form-control" id="endFilter"
+                           placeholder="Até dd/mm/AAAA" v-maska="'##/##/####'">
                 </div>
-                <div class="col-md-3 my-1">
-                    <select  class="form-control form-select" id="categoryFilter" name="category">
-                        <option value="">Todas Categorias</option>
-                        <option value="1">Gestor</option>
-                        <option value="2">Funcionário</option>
+                <div class="col-md-2 my-1">
+                    <select class="form-control form-select" id="statusFilter" name="status">
+                        <option value="2,3" selected>Todos status</option>
+                        <option value="2">Cancelado</option>
+                        <option value="3">Confirmado</option>
+                    </select>
+                </div>
+                <div v-if="user.category == 1" class="col-md-3 my-1">
+                    <select class="form-control form-select" id="userFilter" name="user">
+                        <option value="">Todos usuários</option>
+                        <option v-for="option in users" :key="option.id" :value="option.id">
+                            {{ option.name }}
+                        </option>
                     </select>
                 </div>
             </template>
@@ -124,8 +131,8 @@ export default {
 
                 <div class="row">
                     <div class="col mt-5">
-                        <p>Exibindo de {{ this.users.start }} a {{ this.users.partial }} de
-                            {{ this.users.total }} registros</p>
+                        <p>Exibindo de {{ this.pendings.start }} a {{ this.pendings.partial }} de
+                            {{ this.pendings.total }} registros</p>
                     </div>
                 </div>
 
@@ -133,25 +140,35 @@ export default {
 
             <template v-slot:t-head>
 
-                <th>Nome</th>
-                <th class="text-center">E-mail</th>
-                <th class="text-center">Categoria</th>
+                <th>Requerente</th>
+                <th class="text-center">Valor Total</th>
+                <th class="text-center">Data</th>
+                <th class="text-center">Status</th>
                 <th class="text-center">Ações</th>
 
             </template>
 
             <template v-slot:t-body>
 
-                <tbody v-if="this.users.message.length > 0">
-                <tr v-for="line in  this.users.message" :key="line.id" :id="'line' +  line.id ">
-                    <td>{{ line.name }}</td>
-                    <td class="text-center">{{ line.email }}</td>
-                    <td class="text-center">{{ line.category == 1 ? 'Gestor' : 'Funcionario' }}</td>
+                <tbody v-if="this.pendings.message.length > 0">
+                <tr v-for="line in  this.pendings.message" :key="line.id" :id="'line' +  line.id ">
+                    <td>{{ line.user_name }}</td>
+                    <td class="text-center">{{
+                            line.value.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'})
+                        }}
+                    </td>
+                    <td class="text-center">{{ line.date }}</td>
                     <td class="text-center">
-                        <i class="bx bx-pencil text-info fs-14 mx-1 pointer" @click="getView(line.id)"
-                           title="Editar"></i>
-                        <i class="bx bx-trash text-danger fs-14 mx-1 pointer" title="Excluir"
-                           @click="confirm(line.id)"></i>
+                        <b-badge v-if="line.status === 3" class="fs-12 text-white" variant="success">
+                            Confirmado
+                        </b-badge>
+                        <b-badge v-if="line.status === 2" class="fs-12 text-white" variant="danger">
+                            Cancelado
+                        </b-badge>
+                    </td>
+                    <td class="text-center">
+                        <i class="bx bx-search text-info fs-14 mx-1 pointer" title="Detalhes"
+                           @click="detailsSolicitation(line.id)"></i>
                     </td>
                     <span class="spinner spinner-border spinner-line flex-shrink-0" :id="'spinnerLine' + line.id"
                           role="status">
@@ -160,7 +177,7 @@ export default {
                 </tr>
                 </tbody>
 
-                <tbody v-else-if="this.users.total === 0">
+                <tbody v-else-if="this.pendings.total === 0">
                 <tr>
                     <td colspan="5" class="text-center">Nenhum resultado encontrado</td>
                 </tr>
@@ -170,61 +187,51 @@ export default {
 
             <template v-slot:pagination>
 
-                <Pagination :total="users.total"
+                <Pagination :total="pendings.total"
                             :index="this.data.paramns.index"
                             :limit="this.data.paramns.limit"
-                            session="Users"
+                            session="Resolved"
                 >
                 </Pagination>
 
             </template>
 
-
-            <template v-slot:form-modal>
-
-                <form action="javascript:void(0);" id="form" novalidate>
-                    <b-row class="g-3">
-                        <b-col lg="12">
-                            <label for="name" class="form-label">Nome <span class="text-danger">*</span> </label>
-                            <input type="text" class="form-control" id="name" name="name"
-                                   placeholder="Nome" required/>
-                            <input type="hidden" name="id" id="id" value="0">
-                        </b-col>
-                        <b-col lg="12">
-                            <label for="email" class="form-label">E-mail <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="email" name="email" required
-                                   placeholder="E-mail"/>
-                        </b-col>
-                        <b-col md="6">
-                            <label for="birthDate" class="form-label">Data de Nascimento <span
-                                class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="birthDate" name="birthDate" required
-                                   placeholder="dd/mm/AAAA" v-maska="'##/##/####'"/>
-                        </b-col>
-                        <b-col md="6">
-                            <label for="category" class="form-label">Categoria <span
-                                class="text-danger">*</span></label>
-                            <select  class="form-control form-select" id="category" name="category" required>
-                                <option value="">Selecione</option>
-                                <option value="1">Gestor</option>
-                                <option value="2">Funcionário</option>
-                            </select>
-                        </b-col>
-                        <b-col md="8" id="passwordDiv">
-                            <label for="password" class="form-label">Senha <span class="text-danger">*</span></label>
-                            <div class="position-relative auth-pass-inputgroup">
-                                <input type="password" class="form-control" id="password" name="password"
-                                       placeholder="Digite a Senha" required/>
-                            </div>
-                        </b-col>
-                    </b-row>
-                </form>
-
-            </template>
-
-
         </TableLists>
 
     </Layout>
+
+    <b-modal v-model="showDetails" centered title="Detalhes da Solicitação"
+             class="v-modal-custom" scrollable @hidden="resetModal">
+
+        <section id="sectionModal">
+            <b-row>
+                <b-col xl="12" class="mb-3">
+                    <b>Requerente: </b><span id="userNameDetail"></span>
+                </b-col>
+            </b-row>
+
+            <b-row v-for="(obj, index) in objs" :key="'rowModal' + index">
+                <b-col md="6" class="mb-3">
+                    <b>Categoria: </b> {{ obj.category_name }}
+                </b-col>
+                <b-col md="6" class="mb-3">
+                    <b>Valor: </b> {{ obj.value }}
+                </b-col>
+            </b-row>
+
+            <b-row>
+                <b-col xl="12" class="mb-3">
+                    <b>Valor Total: </b><span id="valueTotalDetail"></span>
+                </b-col>
+            </b-row>
+        </section>
+
+
+        <template v-slot:footer>
+            <b-button type="button" id="closeModalDetail" variant="danger" @click="showDetails = false">Fechar
+            </b-button>
+        </template>
+
+    </b-modal>
 
 </template>

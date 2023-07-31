@@ -37,9 +37,10 @@ export default {
     },
 
     setup() {
+        const user = JSON.parse(localStorage.getItem('user'))
         store.dispatch('pendingModule/' + GET_PENDING);
         store.dispatch('categoriesModule/' + GET_OPTIONS);
-        store.dispatch('usersModule/' + OPTIONS_USERS);
+        if (user.category === 1) store.dispatch('usersModule/' + OPTIONS_USERS);
 
         const objs = ref([{
             id: 0,
@@ -199,7 +200,7 @@ export default {
             addObjs,
             getTotal,
             deleteSolicitation,
-            user: JSON.parse(localStorage.getItem('user')),
+            user,
             newStatusSolicitation,
             detailsSolicitation,
             showDetails
