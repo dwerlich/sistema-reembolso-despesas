@@ -1,5 +1,5 @@
-import {LIST_USERS} from "../mutations-types";
-import {DELETE_USERS, GET_USERS, REGISTER_USERS} from "../actions-type";
+import {LIST_USERS, LIST_USERS_OPTIONS, NEW_VALUES_USERS} from "../mutations-types";
+import {DELETE_USERS, GET_USERS, OPTIONS_USERS, REGISTER_USERS} from "../actions-type";
 import {
     endLoading,
     Forbidden,
@@ -15,6 +15,10 @@ export const state = {
     users: {
         total: '', partial: '', status: '', message: {}
     },
+
+    users_options: {
+        total: '', partial: '', status: '', message: {}
+    },
 };
 
 
@@ -22,6 +26,30 @@ export const mutations = {
     [LIST_USERS](state, users) {
         state.users = users;
         opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+    },
+
+    [NEW_VALUES_USERS](state) {
+        const total = --state.users.total;
+        let message = state.users.message;
+        let partial = state.users.partial;
+        let start = state.users.start;
+        if (total < partial) --partial;
+        if (total === 0) {
+            partial = 0;
+            start = 0;
+            message = {};
+        }
+
+        state.users = {
+            total: total,
+            partial: partial,
+            start: start,
+            message: message
+        }
+    },
+
+    [LIST_USERS_OPTIONS](state, users_options) {
+        state.users_options = users_options;
     },
 };
 export const actions = {
@@ -65,7 +93,7 @@ export const actions = {
             })
     },
 
-    async [DELETE_USERS](contexto, id) {
+    async [DELETE_USERS]({commit}, id) {
         opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
         await http.delete('usuarios/excluir/' + id, {
             headers: {
@@ -77,7 +105,8 @@ export const actions = {
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
                 setTimeout(function () {
                     document.getElementById('line' + id).style.display = 'none';
-                }, 200)
+                }, 200);
+                commit(NEW_VALUES_USERS);
             })
             .catch(errors => {
                 console.error(errors);
@@ -85,6 +114,20 @@ export const actions = {
                 Forbidden(errors);
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
             })
+    },
+
+    [OPTIONS_USERS]({commit}) {
+        const route = 'usuarios/listar/?active=1&name=&email=&category=&limit=1000&index=0';
+        http.get(route, {
+            headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
+        })
+            .then(response => commit(LIST_USERS_OPTIONS, response.data.message))
+            .catch(errors => {
+                console.error(errors);
+                notifyError('Algo deu errado. Contate o administrador!');
+                Forbidden(errors);
+                opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+            });
     },
 };
 

@@ -1,13 +1,18 @@
 <script>
 
 import {computed, ref} from 'vue';
-import appConfig from "../../../app.config.json";
 import Layout from "@/layouts/main";
 import PageHeader from "@/components/page-header";
 import {BCol, BRow} from "bootstrap-vue-3";
 import TableLists from '@/components/table-lists'
 import Pagination from '@/components/pagination'
-import {DELETE_DETAIL, DELETE_SOLICITATIONS, GET_OPTIONS, GET_PENDING} from "@/state/actions-type";
+import {
+    DELETE_DETAIL,
+    DELETE_SOLICITATIONS,
+    GET_OPTIONS,
+    GET_PENDING,
+    NEW_STATUS_SOLICITATIONS, OPTIONS_USERS
+} from "@/state/actions-type";
 import {
     Forbidden,
     startLoading,
@@ -21,7 +26,6 @@ import store from "@/state/store";
 export default {
     page: {
         title: "Solicitações Pendentes",
-        meta: [{name: "description", content: appConfig.description}],
     },
     components: {
         BCol,
@@ -35,12 +39,14 @@ export default {
     setup() {
         store.dispatch('pendingModule/' + GET_PENDING);
         store.dispatch('categoriesModule/' + GET_OPTIONS);
+        store.dispatch('usersModule/' + OPTIONS_USERS);
 
         const objs = ref([{
             id: 0,
             value: '',
             category: ''
         }])
+        const showDetails = ref(false);
 
         const resetModal = () => {
             document.getElementById('form').classList.remove('was-validated');
@@ -152,11 +158,30 @@ export default {
         }
 
         const newStatusSolicitation = (id, type) => {
-
+            store.dispatch('pendingModule/' + NEW_STATUS_SOLICITATIONS, {id, type});
         }
 
-        const detailsSolicitation = (id) => {
+        const detailsSolicitation = async (id) => {
+            showDetails.value = true;
+            startLoading('sectionModal', 'save');
+            await http.get('solicitacao/dados/' + id, {
+                headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
+            })
+                .then(response => {
+                    const result = response.data.message;
+                    objs.value = [];
+                    result.details.forEach((element) => objs.value.push(element));
+                    document.getElementById('valueTotalDetail').innerText = result.valueTotal;
+                    document.getElementById('userNameDetail').innerText = result.user_name;
 
+                    endLoading('sectionModal', 'save');
+                })
+                .catch(errors => {
+                    endLoading('form', 'save');
+                    console.error(errors);
+                    notifyError(errors.response.data.message);
+                    Forbidden(errors);
+                });
         }
 
         return {
@@ -165,6 +190,7 @@ export default {
             data: JSON.parse(localStorage.getItem('Pending')),
             pendings: computed(() => store.state.pendingModule.pending),
             options: computed(() => store.state.categoriesModule.options),
+            users: computed(() => store.state.usersModule.users_options),
             resetModal,
             getView,
             childComponentRef,
@@ -175,7 +201,8 @@ export default {
             deleteSolicitation,
             user: JSON.parse(localStorage.getItem('user')),
             newStatusSolicitation,
-            detailsSolicitation
+            detailsSolicitation,
+            showDetails
         }
     }
 }
@@ -198,24 +225,16 @@ export default {
 
                 <div class="col-md-2 my-1">
                     <input type="text" class="form-control" id="startFilter"
-                           placeholder="Dê dd/mm/AAAA"  v-maska="'##/##/####'">
+                           placeholder="Dê dd/mm/AAAA" v-maska="'##/##/####'">
                 </div>
                 <div class="col-md-2 my-1">
                     <input type="text" class="form-control" id="endFilter"
                            placeholder="Até dd/mm/AAAA" v-maska="'##/##/####'">
                 </div>
-                <div class="col-md-3 my-1">
-                    <select class="form-control form-select" id="categoryFilter" name="category">
-                        <option value="">Todas Categorias</option>
-                        <option v-for="option in options" :key="option.id" :value="option.id">
-                            {{ option.name }}
-                        </option>
-                    </select>
-                </div>
                 <div v-if="user.category == 1" class="col-md-3 my-1">
                     <select class="form-control form-select" id="userFilter" name="user">
                         <option value="">Todos usuários</option>
-                        <option v-for="option in options" :key="option.id" :value="option.id">
+                        <option v-for="option in users" :key="option.id" :value="option.id">
                             {{ option.name }}
                         </option>
                     </select>
@@ -259,16 +278,21 @@ export default {
                         </b-badge>
                     </td>
                     <td class="text-center">
-                        <i v-if="user.id == line.user_id" class="bx bx-pencil text-info fs-14 mx-1 pointer" @click="getView(line.id)"
+                        <i v-if="user.id == line.user_id" class="bx bx-pencil text-info fs-14 mx-1 pointer"
+                           @click="getView(line.id)"
                            title="Editar"></i>
-                        <i v-if="user.id == line.user_id" class="bx bx-trash text-danger fs-14 mx-1 pointer" title="Excluir"
+                        <i v-if="user.id == line.user_id" class="bx bx-trash text-danger fs-14 mx-1 pointer"
+                           title="Excluir"
                            @click="deleteLine(line.id)"></i>
 
-                        <i v-if="user.category == 1 && user.id != line.user_id" class="bx bx-search text-info fs-14 mx-1 pointer" title="Detalhes"
+                        <i v-if="user.category == 1 && user.id != line.user_id"
+                           class="bx bx-search text-info fs-14 mx-1 pointer" title="Detalhes"
                            @click="detailsSolicitation(line.id)"></i>
-                        <i v-if="user.category == 1" class="bx bx-check-circle text-success fs-14 mx-1 pointer" title="Confirmar"
+                        <i v-if="user.category == 1" class="bx bx-check-circle text-success fs-14 mx-1 pointer"
+                           title="Confirmar"
                            @click="newStatusSolicitation(line.id, 'confirmar')"></i>
-                        <i v-if="user.category == 1" class="bx bx-x-circle text-danger fs-14 mx-1 pointer" title="Cancelar"
+                        <i v-if="user.category == 1" class="bx bx-x-circle text-danger fs-14 mx-1 pointer"
+                           title="Cancelar"
                            @click="newStatusSolicitation(line.id, 'cancelar')"></i>
                     </td>
                     <span class="spinner spinner-border spinner-line flex-shrink-0" :id="'spinnerLine' + line.id"
@@ -296,7 +320,6 @@ export default {
                 </Pagination>
 
             </template>
-
 
             <template v-slot:form-modal>
 
@@ -346,9 +369,42 @@ export default {
 
             </template>
 
-
         </TableLists>
 
     </Layout>
+
+    <b-modal v-model="showDetails" centered title="Detalhes da Solicitação"
+             class="v-modal-custom" scrollable @hidden="resetModal">
+
+        <section id="sectionModal">
+            <b-row>
+                <b-col xl="12" class="mb-3">
+                    <b>Requerente: </b><span id="userNameDetail"></span>
+                </b-col>
+            </b-row>
+
+            <b-row v-for="(obj, index) in objs" :key="'rowModal' + index">
+                <b-col md="6" class="mb-3">
+                    <b>Categoria: </b> {{ obj.category_name }}
+                </b-col>
+                <b-col md="6" class="mb-3">
+                    <b>Valor: </b> {{ obj.value }}
+                </b-col>
+            </b-row>
+
+            <b-row>
+                <b-col xl="12" class="mb-3">
+                    <b>Valor Total: </b><span id="valueTotalDetail"></span>
+                </b-col>
+            </b-row>
+        </section>
+
+
+        <template v-slot:footer>
+            <b-button type="button" id="closeModalDetail" variant="danger" @click="showDetails = false">Fechar
+            </b-button>
+        </template>
+
+    </b-modal>
 
 </template>

@@ -1,5 +1,11 @@
-import {LIST_PENDING} from "../mutations-types";
-import {DELETE_DETAIL, DELETE_SOLICITATIONS, GET_PENDING, REGISTER_PENDING} from "../actions-type";
+import {LIST_PENDING, NEW_VALUES_PENDING} from "../mutations-types";
+import {
+    DELETE_DETAIL,
+    DELETE_SOLICITATIONS,
+    GET_PENDING,
+    NEW_STATUS_SOLICITATIONS,
+    REGISTER_PENDING
+} from "../actions-type";
 import {
     endLoading,
     Forbidden,
@@ -22,6 +28,26 @@ export const mutations = {
     [LIST_PENDING](state, pending) {
         state.pending = pending;
         opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+    },
+
+    [NEW_VALUES_PENDING](state) {
+        const total = --state.pending.total;
+        let message = state.pending.message;
+        let partial = state.pending.partial;
+        let start = state.pending.start;
+        if (total < partial) --partial;
+        if (total === 0) {
+            partial = 0;
+            start = 0;
+            message = {};
+        }
+
+        state.pending = {
+            total: total,
+            partial: partial,
+            start: start,
+            message: message
+        }
     },
 };
 export const actions = {
@@ -65,7 +91,7 @@ export const actions = {
             })
     },
 
-    async [DELETE_SOLICITATIONS](contexto, id) {
+    async [DELETE_SOLICITATIONS]({commit}, id) {
         opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
         await http.delete('solicitacao/excluir/' + id, {
             headers: {
@@ -77,7 +103,8 @@ export const actions = {
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
                 setTimeout(function () {
                     document.getElementById('line' + id).style.display = 'none';
-                }, 200)
+                }, 200);
+                commit(NEW_VALUES_PENDING);
             })
             .catch(errors => {
                 console.error(errors);
@@ -95,6 +122,29 @@ export const actions = {
         })
             .then(() => {
                 return true;
+            })
+            .catch(errors => {
+                console.error(errors);
+                notifyError('Algo deu errado. Contate o administrador!');
+                Forbidden(errors);
+                opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+            })
+    },
+
+    [NEW_STATUS_SOLICITATIONS]({commit}, data) {
+        opacityByTag('table', 'td', '.2', 'spinnerTable', 'block');
+        http.get(`solicitacao/${data.type}/${data.id}`, {
+            headers: {
+                'Authorization': `Bearer ${localStorage.getItem('jwt')}`
+            }
+        })
+            .then(() => {
+                Swal.fire("", "Status alterado com sucesso!", "success");
+                opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
+                setTimeout(function () {
+                    document.getElementById('line' + data.id).style.display = 'none';
+                }, 200);
+                commit(NEW_VALUES_PENDING);
             })
             .catch(errors => {
                 console.error(errors);

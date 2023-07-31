@@ -18,7 +18,7 @@ class SolicitationRepository
 			DB::beginTransaction();
 			$solicitation = new Solicitation();
 			if ($data['id'] > 0) $solicitation = Solicitation::find($data['id']);
-			$solicitation->status = 1;
+			$solicitation->status = Solicitation::PENDENCY;
 			$solicitation->user_id = $user->id;
 			$solicitation->value = (new Utils)->moneyToFloat($data['valueTotal']);
 			$solicitation->save();
@@ -49,16 +49,18 @@ class SolicitationRepository
 	#[ArrayShape(['id' => "mixed", 'valueTotal' => "string", 'details' => "array"])]
 	public function data(Solicitation $solicitation, User $user): array
 	{
-		if ($user->id !== $solicitation->user_id) throw new \Exception('Não autorizado!');
+		if ($user->id != $solicitation->user_id && $user->category > 1) throw new \Exception('Não autorizado!');
 		$details = [];
 		foreach ($solicitation->details as $detail) {
 			$details[] = [
 				'id' => $detail->id,
 				'category' => $detail->category->id,
+				'category_name' => $detail->category->name,
 				'value' => 'R$ ' . number_format($detail->value, 2, ',', '.')
 			];
 		}
 		return [
+			'user_name' => $solicitation->user->name,
 			'id' => $solicitation->id,
 			'valueTotal' => 'R$ ' . number_format($solicitation->value, 2, ',', '.'),
 			'details' => $details
@@ -69,6 +71,11 @@ class SolicitationRepository
 	{
 		if ($filter['user']) {
 			$solicitations = $solicitations->where('user_id', $filter['user']);
+		}
+		if ($filter['status'] === '2,3') {
+			$solicitations = $solicitations->where('status', '>', '1');
+		} else {
+			$solicitations = $solicitations->where('status', $filter['status']);
 		}
 		if ($filter['category']) {
 			$solicitations = $solicitations->where('category_id', $filter['category']);
@@ -107,5 +114,27 @@ class SolicitationRepository
 		$solicitations = Solicitation::query()->selectRaw('COUNT(id) as count');
 		$solicitations = $this->generateWhere($solicitations, $filter, $user);
 		return $solicitations->first()->count;
+	}
+	
+	public function change(string $type, int $id): JsonResponse
+	{
+		try {
+			$solicitation = Solicitation::find($id);
+			if ($type == 'confirmar') {
+				$solicitation->status = Solicitation::RESOLVED;
+			} elseif ($type == 'cancelar') {
+				$solicitation->status = Solicitation::CANCELED;
+			}
+			$solicitation->save();
+			return response()->json([
+				'status' => 'ok',
+				'message' => 'Solicitação cadastrada com sucesso!'
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
 	}
 }

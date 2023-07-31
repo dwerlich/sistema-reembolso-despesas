@@ -99,4 +99,21 @@ class SolicitationsController extends Controller
 			], 500);
 		}
 	}
+	
+	public function change(Request $request, string $type, int $id): JsonResponse
+	{
+		try {
+			$user =$this->getPermissions($request->user());
+			if ($user->category != 1) throw new \Exception('Não autorizado!');
+			return response()->json([
+				'status' => 'ok',
+				'message' => $this->repository->change($type, $id)
+			]);
+		} catch (\Exception $e) {
+			return response()->json([
+				'status' => 'error',
+				'message' => $e->getMessage()
+			], 500);
+		}
+	}
 }
