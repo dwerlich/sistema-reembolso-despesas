@@ -151,6 +151,14 @@ export default {
             }
         }
 
+        const newStatusSolicitation = (id, type) => {
+
+        }
+
+        const detailsSolicitation = (id) => {
+
+        }
+
         return {
             title: "Solicitações Pendentes",
             items: null,
@@ -165,7 +173,9 @@ export default {
             addObjs,
             getTotal,
             deleteSolicitation,
-            user: JSON.parse(localStorage.getItem('user'))
+            user: JSON.parse(localStorage.getItem('user')),
+            newStatusSolicitation,
+            detailsSolicitation
         }
     }
 }
@@ -188,11 +198,11 @@ export default {
 
                 <div class="col-md-2 my-1">
                     <input type="text" class="form-control" id="startFilter"
-                           placeholder="Dê dd/mm/AAAA">
+                           placeholder="Dê dd/mm/AAAA"  v-maska="'##/##/####'">
                 </div>
                 <div class="col-md-2 my-1">
                     <input type="text" class="form-control" id="endFilter"
-                           placeholder="Até dd/mm/AAAA">
+                           placeholder="Até dd/mm/AAAA" v-maska="'##/##/####'">
                 </div>
                 <div class="col-md-3 my-1">
                     <select class="form-control form-select" id="categoryFilter" name="category">
@@ -203,7 +213,7 @@ export default {
                     </select>
                 </div>
                 <div v-if="user.category == 1" class="col-md-3 my-1">
-                    <select class="form-control form-select" id="categoryFilter" name="category">
+                    <select class="form-control form-select" id="userFilter" name="user">
                         <option value="">Todos usuários</option>
                         <option v-for="option in options" :key="option.id" :value="option.id">
                             {{ option.name }}
@@ -249,10 +259,17 @@ export default {
                         </b-badge>
                     </td>
                     <td class="text-center">
-                        <i class="bx bx-pencil text-info fs-14 mx-1 pointer" @click="getView(line.id)"
+                        <i v-if="user.id == line.user_id" class="bx bx-pencil text-info fs-14 mx-1 pointer" @click="getView(line.id)"
                            title="Editar"></i>
-                        <i class="bx bx-trash text-danger fs-14 mx-1 pointer" title="Excluir"
+                        <i v-if="user.id == line.user_id" class="bx bx-trash text-danger fs-14 mx-1 pointer" title="Excluir"
                            @click="deleteLine(line.id)"></i>
+
+                        <i v-if="user.category == 1 && user.id != line.user_id" class="bx bx-search text-info fs-14 mx-1 pointer" title="Detalhes"
+                           @click="detailsSolicitation(line.id)"></i>
+                        <i v-if="user.category == 1" class="bx bx-check-circle text-success fs-14 mx-1 pointer" title="Confirmar"
+                           @click="newStatusSolicitation(line.id, 'confirmar')"></i>
+                        <i v-if="user.category == 1" class="bx bx-x-circle text-danger fs-14 mx-1 pointer" title="Cancelar"
+                           @click="newStatusSolicitation(line.id, 'cancelar')"></i>
                     </td>
                     <span class="spinner spinner-border spinner-line flex-shrink-0" :id="'spinnerLine' + line.id"
                           role="status">

@@ -31,7 +31,7 @@ export default {
             }
         },
 
-        modalShow(){
+        modalShow() {
             this.showModal = true;
         },
 
@@ -84,11 +84,10 @@ export default {
             const keys = Object.keys(obj.paramns);
 
             // Selecionando apenas os valores do formulário, os demais permanecem iguais
-            const arr = ['index', 'sector', 'toView', 'limit', 'order', 'seq']
             for (let i = 0; i < keys.length; i++) {
-                if (arr.indexOf(keys[i]) < 0) {
-                    obj.paramns[keys[i]] = document.getElementById(keys[i] + 'Filter').value;
-                }
+
+                if (document.getElementById(keys[i] + 'Filter')) obj.paramns[keys[i]] = document.getElementById(keys[i] + 'Filter').value;
+
             }
             // Zerando o index
             obj.paramns.index = 0;

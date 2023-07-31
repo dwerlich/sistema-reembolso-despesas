@@ -75,15 +75,15 @@ class SolicitationRepository
 		}
 		$start = \DateTime::createFromFormat('d/m/Y', $filter['start']);
 		if ($start) {
-			$solicitations = $solicitations->where('created_at', '>', $start->format('Y-m-d 00:00'));
+			$solicitations = $solicitations->where('solicitations.created_at', '>', $start->format('Y-m-d 00:00'));
 		}
 		$end = \DateTime::createFromFormat('d/m/Y', $filter['end']);
 		if ($end) {
-			$solicitations = $solicitations->where('created_at', '<', $end->format('Y-m-d 23:59'));
+			$solicitations = $solicitations->where('solicitations.created_at', '<', $end->format('Y-m-d 23:59'));
 		}
-		if ($user->category === 1) {
+		if ($user->category == 1 && $filter['user']) {
 			$solicitations = $solicitations->where('user_id', $filter['user']);
-		} else {
+		} elseif ($user->category > 1) {
 			$solicitations = $solicitations->where('user_id', $user->id);
 		}
 		
@@ -93,7 +93,8 @@ class SolicitationRepository
 	public function list(array $filter, User $user)
 	{
 		$solicitations = Solicitation::join('users', 'users.id', '=', 'solicitations.user_id')
-			->selectRaw('solicitations.id , solicitations.value, DATE_FORMAT(solicitations.created_at, "%d/%m/%Y %H:%i:%s") as date, users.name as user_name');
+			->selectRaw('solicitations.id , solicitations.value, DATE_FORMAT(solicitations.created_at,
+						"%d/%m/%Y %H:%i:%s") as date, users.name as user_name, solicitations.user_id');
 		$solicitations = $this->generateWhere($solicitations, $filter, $user);
 		return $solicitations->offset($filter['index'])
 			->orderBy('solicitations.created_at', 'desc')
