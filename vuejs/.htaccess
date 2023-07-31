@@ -1,8 +1,10 @@
+# Impede o acesso direto a arquivos e diretórios
+Options -Indexes
+
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /
-  RewriteRule ^index\.html$ - [L]
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /index.html [L]
+    RewriteEngine On
+
+    # Se o caminho não for um arquivo existente, envie a solicitação para o index.html
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.html [QSA,L]
 </IfModule>
