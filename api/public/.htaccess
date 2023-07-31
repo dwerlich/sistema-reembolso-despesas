@@ -1,4 +1,14 @@
 <IfModule mod_rewrite.c>
+
+       # Permitir origens específicas, separadas por espaço
+    Header set Access-Control-Allow-Origin *
+
+    # Permitir os métodos HTTP especificados
+    Header set Access-Control-Allow-Methods "POST, GET, OPTIONS, PUT, DELETE"
+
+    # Permitir os cabeçalhos especificados
+    Header set Access-Control-Allow-Headers "Content-Type, Authorization"
+
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
