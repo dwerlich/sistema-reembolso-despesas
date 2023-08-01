@@ -181,7 +181,7 @@ export default {
                     <b-col lg="12">
                         <div class="text-center">
                             <p class="mb-0 text-muted">
-                                &copy; {{ new Date().getFullYear() }} LifeCode. Feito com o
+                                &copy; {{ new Date().getFullYear() }} TechVison. Feito com o
                                 <i class="mdi mdi-heart text-danger"></i>
                             </p>
                         </div>
