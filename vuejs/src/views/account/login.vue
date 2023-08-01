@@ -29,31 +29,13 @@ export default {
             http.post('login', formData)
                 .then(response => {
                     if (response.status === 200) {
-                        localStorage.setItem('jwt', response.data.message);
+                        localStorage.setItem('user', JSON.stringify(response.data.message));
+                        localStorage.setItem('jwt', response.data.token);
                         if (document.getElementById('rememberLogin').checked) {
                             localStorage.setItem('loginMonay', JSON.stringify(formData));
                         } else {
                             localStorage.removeItem('loginMonay');
                         }
-                        getUser();
-                    } else {
-                        load.value = false;
-                        notifyError(response.data.message)
-                    }
-                }).catch(e => {
-                load.value = false;
-                notifyError(e.response.data.message)
-                console.log(e)
-            });
-        }
-
-        const getUser = () => {
-            http.get('usuario', {
-                headers: {'Authorization': ` Bearer ${localStorage.getItem('jwt')} `}
-            })
-                .then(response => {
-                    if (response.status === 200) {
-                        localStorage.setItem('user', JSON.stringify(response.data.message));
                         setTimeout(() => {
                             router.push({
                                 path: '/'
@@ -67,8 +49,7 @@ export default {
                 load.value = false;
                 notifyError(e.response.data.message)
                 console.log(e)
-
-            })
+            });
         }
 
         const tryToLogIn = () => {

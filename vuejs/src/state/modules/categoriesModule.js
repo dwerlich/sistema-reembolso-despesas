@@ -66,7 +66,7 @@ export const actions = {
             .then(response => commit(LIST_CATEGORIES, response.data))
             .catch(errors => {
                 console.error(errors);
-                notifyError('Algo deu errado. Contate o administrador!');
+                
                 Forbidden(errors);
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
             });
@@ -80,7 +80,7 @@ export const actions = {
             .then(response => commit(LIST_OPTIONS, response.data.message))
             .catch(errors => {
                 console.error(errors);
-                notifyError('Algo deu errado. Contate o administrador!');
+                
                 Forbidden(errors);
             });
     },
@@ -101,7 +101,7 @@ export const actions = {
             .catch(errors => {
                 console.error(errors);
                 endLoading('form', 'save');
-                notifyError('Algo deu errado. Contate o administrador!');
+                
                 Forbidden(errors);
             })
     },
@@ -123,7 +123,7 @@ export const actions = {
             })
             .catch(errors => {
                 console.error(errors);
-                notifyError('Algo deu errado. Contate o administrador!');
+                
                 Forbidden(errors);
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
             })

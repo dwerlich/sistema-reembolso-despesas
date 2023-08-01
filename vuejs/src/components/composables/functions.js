@@ -89,14 +89,15 @@ export function formDataToJson(id) {
 }
 
 export function Forbidden(response) {
-    if (response.status === 500 && (response.data.message === 'Sessão expirada!' || response.data.message === 'Acesso Negado!')) {
+    if (response.response.status === 401) {
+        notifyError('Sessão expirada!');
         localStorage.removeItem('jwt');
         router.push({
             name: 'login'
         })
     }
 
-    if (response.status === 500 && response.data.message === 'Acesso negado!') {
+    if (response.response.status === 500 && response.data.message === 'Acesso negado!') {
         router.push({
             name: 'dashboard'
         })
@@ -104,7 +105,7 @@ export function Forbidden(response) {
 }
 
 export function showNotify(response) {
-    if (response.status === 200 || response.status === 201) {
+    if (response.response.status === 200 || response.response.status === 201) {
         notifySuccess(response.data.message);
     } else {
         console.log(response);

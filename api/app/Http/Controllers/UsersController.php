@@ -20,7 +20,8 @@ class UsersController extends Controller
 			if ($user->category != 1) throw new \Exception('Não autorizado!');
 			return response()->json([
 				'status' => 'ok',
-				'message' => $this->repository->data($user)
+				'message' => $this->repository->data($user),
+				'token' => $user->createToken('Token Name')->plainTextToken
 			]);
 		} catch (\Exception $e) {
 			return response()->json([

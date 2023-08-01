@@ -2,7 +2,6 @@ import {createWebHistory, createRouter} from "vue-router";
 import routes from './routes';
 import appConfig from "../../app.config";
 import jwt from 'jwt-decode';
-import {notifyError} from "@/components/composables/functions";
 import {ACCESS_BY_LEVEL} from "@/components/composables/variables";
 
 const router = createRouter({
@@ -34,26 +33,7 @@ router.beforeEach(async (routeTo, routeFrom, next) => {
         if (ACCESS_BY_LEVEL[level].indexOf(routeTo.name) < 0) next({name: 'dashboard'});
     }
 
-    try {
-        const token = localStorage.getItem('jwt');
-
-        const decoded = jwt(token);
-        const date = new Date().getTime() / 1000;
-
-        if (decoded.exp < date) {
-            localStorage.removeItem('jwt');
-            notifyError('Sessão expirada!');
-            next({name: 'login'});
-        } else {
-            next();
-        }
-    } catch (e) {
-        localStorage.removeItem('jwt');
-        notifyError('Você precisa se autenticar!');
-        next({
-            name: 'login'
-        });
-    }
+    next();
 });
 
 router.beforeResolve(async (routeTo, routeFrom, next) => {

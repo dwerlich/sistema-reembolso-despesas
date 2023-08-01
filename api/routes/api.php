@@ -17,35 +17,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('api')->get('/usuario', [LoginController::class, 'logged']);
 Route::post('/login', [LoginController::class, 'authentication']);
 
-Route::prefix('/usuarios')->group(function () {
-	Route::controller(UsersController::class)->group(function () {
-		Route::get('/listar', 'list');
-		Route::get('/dados/{user}', 'data');
-		Route::post('/cadastrar', 'store');
-		Route::delete('/excluir/{id}', 'destroy');
+Route::middleware('auth:sanctum')->group(function () {
+	Route::prefix('/usuarios')->group(function () {
+		Route::controller(UsersController::class)->group(function () {
+			Route::get('/listar', 'list');
+			Route::get('/dados/{user}', 'data');
+			Route::post('/cadastrar', 'store');
+			Route::delete('/excluir/{id}', 'destroy');
+		});
 	});
-});
-
-Route::prefix('/categorias')->group(function () {
-	Route::controller(CategoriesController::class)->group(function () {
-		Route::get('/listar', 'list');
-		Route::get('/dados/{category}', 'data');
-		Route::post('/cadastrar', 'store');
-		Route::delete('/excluir/{id}', 'destroy');
-		Route::get('/novo-status/{id}', 'change');
+	
+	Route::prefix('/categorias')->group(function () {
+		Route::controller(CategoriesController::class)->group(function () {
+			Route::get('/listar', 'list');
+			Route::get('/dados/{category}', 'data');
+			Route::post('/cadastrar', 'store');
+			Route::delete('/excluir/{id}', 'destroy');
+			Route::get('/novo-status/{id}', 'change');
+		});
 	});
-});
-
-Route::prefix('/solicitacao')->group(function () {
-	Route::controller(SolicitationsController::class)->group(function () {
-		Route::get('/listar', 'list');
-		Route::get('/dados/{solicitation}', 'data');
-		Route::post('/cadastrar', 'store');
-		Route::delete('/excluir/{id}', 'destroy');
-		Route::delete('/excluir-detalhe/{id}', 'destroy_detail');
-		Route::get('/{type}/{id}', 'change');
+	
+	Route::prefix('/solicitacao')->group(function () {
+		Route::controller(SolicitationsController::class)->group(function () {
+			Route::get('/listar', 'list');
+			Route::get('/dados/{solicitation}', 'data');
+			Route::post('/cadastrar', 'store');
+			Route::delete('/excluir/{id}', 'destroy');
+			Route::delete('/excluir-detalhe/{id}', 'destroy_detail');
+			Route::get('/{type}/{id}', 'change');
+		});
 	});
 });

@@ -31,7 +31,7 @@ export const actions = {
             .then(response => commit(LIST_RESOLVED, response.data))
             .catch(errors => {
                 console.error(errors);
-                notifyError('Algo deu errado. Contate o administrador!');
+                
                 Forbidden(errors);
                 opacityByTag('table', 'td', '1', 'spinnerTable', 'none');
             });

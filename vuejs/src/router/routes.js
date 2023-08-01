@@ -8,7 +8,7 @@ export default [
             title: "Dashboard",
             authRequired: true,
         },
-        component: () => import("../views/dashboard/ecommerce/index.vue"),
+        component: () => import("../views/dashboard/index.vue"),
     },
     {
         path: "/login",
