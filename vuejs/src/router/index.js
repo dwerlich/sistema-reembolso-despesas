@@ -1,7 +1,6 @@
 import {createWebHistory, createRouter} from "vue-router";
 import routes from './routes';
 import appConfig from "../../app.config";
-import jwt from 'jwt-decode';
 import {ACCESS_BY_LEVEL} from "@/components/composables/variables";
 
 const router = createRouter({

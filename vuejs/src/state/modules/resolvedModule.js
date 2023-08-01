@@ -1,6 +1,6 @@
 import {LIST_RESOLVED} from "../mutations-types";
 import {GET_RESOLVED,} from "../actions-type";
-import {Forbidden, getUrl, notifyError, opacityByTag,} from '@/components/composables/functions';
+import {Forbidden, getUrl, opacityByTag,} from '@/components/composables/functions';
 import http from "@/http";
 import {setSessionResolved} from "@/components/composables/getSessions";
 

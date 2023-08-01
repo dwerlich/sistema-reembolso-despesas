@@ -1,12 +1,6 @@
 import {LIST_USERS, LIST_USERS_OPTIONS, NEW_VALUES_USERS} from "../mutations-types";
 import {DELETE_USERS, GET_USERS, OPTIONS_USERS, REGISTER_USERS} from "../actions-type";
-import {
-    endLoading,
-    Forbidden,
-    getUrl,
-    showNotify,
-    notifyError, opacityByTag,
-} from '@/components/composables/functions';
+import {endLoading, Forbidden, getUrl, showNotify, opacityByTag} from '@/components/composables/functions';
 import http from "@/http";
 import {setSessionUsers} from "@/components/composables/getSessions";
 import Swal from "sweetalert2";

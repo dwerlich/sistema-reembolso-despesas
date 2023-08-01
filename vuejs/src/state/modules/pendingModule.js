@@ -11,7 +11,7 @@ import {
     Forbidden,
     getUrl,
     showNotify,
-    notifyError, opacityByTag,
+    opacityByTag,
 } from '@/components/composables/functions';
 import http from "@/http";
 import {setSessionPending} from "@/components/composables/getSessions";

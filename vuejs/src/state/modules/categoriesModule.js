@@ -5,7 +5,8 @@ import {
     Forbidden,
     getUrl,
     showNotify,
-    notifyError, opacityByTag,
+
+    opacityByTag,
 } from '@/components/composables/functions';
 import http from "@/http";
 import {setSessionCategories} from "@/components/composables/getSessions";
