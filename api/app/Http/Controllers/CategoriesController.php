@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Validator;
 use App\Models\Category;
 use App\Repositories\CategoryRespository;
 use Illuminate\Http\JsonResponse;
@@ -58,6 +59,10 @@ class CategoriesController extends Controller
 		try {
 			$user = $this->getPermissions($request->user());
 			if ($user->category != 1) throw new \Exception('Não autorizado!');
+			$fields = [
+				'name' => 'Nome',
+			];
+			Validator::requireValidator($fields, $request->all());
 			$msg = $this->repository->add($request->all());
 			return response()->json([
 				'status' => 'ok',

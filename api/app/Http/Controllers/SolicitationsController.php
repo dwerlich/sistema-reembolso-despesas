@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Validator;
 use App\Models\Solicitation;
 use App\Models\SolicitationDetails;
 use App\Repositories\SolicitationRepository;
@@ -57,7 +58,14 @@ class SolicitationsController extends Controller
 	{
 		try {
 			$user = $request->user();
-			return $this->repository->add($request->all(), $user);
+			$fields = [
+				'valueTotal' => 'Valor Total',
+			];
+			$data = $request->all();
+			if (!$data['category'] || !$data['value'])throw new \Exception('Cadastre detalhes da solicitação!');
+			
+			Validator::requireValidator($fields, $data);
+			return $this->repository->add($data, $user);
 		} catch (\Exception $e) {
 			return response()->json([
 				'status' => 'error',

@@ -134,10 +134,10 @@ export default {
         }
 
         const deleteSolicitation = async (index, id) => {
-            let result = false;
+            let result = true;
             if (id > 0) result = await store.dispatch('pendingModule/' + DELETE_DETAIL, id);
 
-            console.log(result)
+            if (objs.value.length < 2) result = false;
 
             if (result === true) {
                 setObjs();

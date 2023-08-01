@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Validator;
 use App\Models\User;
 use App\Repositories\UserRepository;
 use Illuminate\Http\JsonResponse;
@@ -59,6 +60,14 @@ class UsersController extends Controller
 		try {
 			$user = $this->getPermissions($request->user());
 			if ($user->category != 1) throw new \Exception('Não autorizado!');
+			$fields = [
+				'name' => 'Nome',
+				'email' => 'E-mail',
+				'birthDate' => 'Data de Nascimento',
+				'category' => 'Categoria',
+				'password' => 'Senha',
+			];
+			Validator::requireValidator($fields, $request->all());
 			$msg = $this->repository->add($request->all());
 			return response()->json([
 				'status' => 'ok',
