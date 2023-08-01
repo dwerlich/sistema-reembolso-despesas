@@ -65,8 +65,13 @@ class UsersController extends Controller
 				'email' => 'E-mail',
 				'birthDate' => 'Data de Nascimento',
 				'category' => 'Categoria',
-				'password' => 'Senha',
 			];
+			if ($request->only('id')== 0) {
+				$fields2 = [
+					'password' => 'Senha',
+				];
+				$fields = array_merge($fields, $fields2);
+			}
 			Validator::requireValidator($fields, $request->all());
 			$msg = $this->repository->add($request->all());
 			return response()->json([

@@ -97,6 +97,10 @@ export function Forbidden(response) {
         })
     }
 
+    if (response.response.status === 500) {
+        notifyError(response.data.message);
+    }
+
     if (response.response.status === 500 && response.data.message === 'Acesso negado!') {
         router.push({
             name: 'dashboard'
