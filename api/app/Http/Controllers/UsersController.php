@@ -16,12 +16,11 @@ class UsersController extends Controller
 	public function data(Request $request, User $user): JsonResponse
 	{
 		try {
-			$user = $this->getPermissions($request->user());
-			if ($user->category != 1) throw new \Exception('Não autorizado!');
+			$logged = $this->getPermissions($request->user());
+			if ($logged->category != 1) throw new \Exception('Não autorizado!');
 			return response()->json([
 				'status' => 'ok',
 				'message' => $this->repository->data($user),
-				'token' => $user->createToken('Token Name')->plainTextToken
 			]);
 		} catch (\Exception $e) {
 			return response()->json([

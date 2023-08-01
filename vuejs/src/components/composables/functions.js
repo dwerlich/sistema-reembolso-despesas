@@ -105,7 +105,7 @@ export function Forbidden(response) {
 }
 
 export function showNotify(response) {
-    if (response.response.status === 200 || response.response.status === 201) {
+    if (response.status === 200 || response.status === 201) {
         notifySuccess(response.data.message);
     } else {
         console.log(response);
